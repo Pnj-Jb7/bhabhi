@@ -619,25 +619,45 @@ export default function GamePage() {
     return () => clearInterval(interval);
   }, [gameState?.status, fetchGameState]);
 
+  // WebSocket connection state
+  const [wsConnected, setWsConnected] = useState(false);
+
   // WebSocket
   useEffect(() => {
     if (!user || !roomCode) return;
 
-    const ws = new WebSocket(`${WS_URL}/ws/${roomCode}/${user.id}`);
-    wsRef.current = ws;
+    const connectWebSocket = () => {
+      const ws = new WebSocket(`${WS_URL}/ws/${roomCode}/${user.id}`);
+      wsRef.current = ws;
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      
-      switch (data.type) {
-        case 'game_started':
-          setGameState({
-            your_hand: data.your_hand,
-            current_player: data.current_player,
-            current_trick: [],
-            completed_trick: [],
-            lead_suit: null,
-            player_order: data.player_order,
+      ws.onopen = () => {
+        setWsConnected(true);
+        console.log('WebSocket connected');
+      };
+
+      ws.onclose = () => {
+        setWsConnected(false);
+        console.log('WebSocket disconnected, reconnecting in 2s...');
+        setTimeout(connectWebSocket, 2000);
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setWsConnected(false);
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        
+        switch (data.type) {
+          case 'game_started':
+            setGameState({
+              your_hand: data.your_hand,
+              current_player: data.current_player,
+              current_trick: [],
+              completed_trick: [],
+              lead_suit: null,
+              player_order: data.player_order,
             player_card_counts: {},
             finished_players: [],
             loser: null,
