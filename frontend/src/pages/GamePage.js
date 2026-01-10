@@ -838,8 +838,13 @@ export default function GamePage() {
       }
     };
 
+    connectWebSocket();
+
     return () => {
-      ws.close();
+      if (wsRef.current) {
+        wsRef.current.onclose = null; // Prevent reconnect on intentional close
+        wsRef.current.close();
+      }
       cleanupVoice();
     };
   }, [user, roomCode, navigate, soundEnabled, displayTrick.length, trickResult, voiceEnabled]);
