@@ -1490,6 +1490,7 @@ export default function GamePage() {
         players={gameState.players || room.players || []}
         isOpen={chatOpen}
         onToggle={() => setChatOpen(!chatOpen)}
+        isConnected={wsConnected}
       />
 
       {/* Spectator Choice Dialog - choose ONE player to watch */}
