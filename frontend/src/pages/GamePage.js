@@ -978,7 +978,13 @@ export default function GamePage() {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: 'chat_message', message }));
     } else {
-      toast.error('Chat not connected');
+      // Try to reconnect WebSocket
+      toast.error('Chat reconnecting... please try again');
+      const ws = new WebSocket(`${WS_URL}/ws/${roomCode}/${user.id}`);
+      ws.onopen = () => {
+        wsRef.current = ws;
+        toast.success('Chat reconnected!');
+      };
     }
   };
 
