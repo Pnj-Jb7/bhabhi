@@ -856,7 +856,8 @@ export default function GamePage() {
       }
       cleanupVoice();
     };
-  }, [user, roomCode, navigate, soundEnabled, displayTrick.length, trickResult, voiceEnabled]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, roomCode, navigate, soundEnabled, trickResult, voiceEnabled]);
 
   // Voice chat functions
   const handleVoiceSignal = (data) => {
