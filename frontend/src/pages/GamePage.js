@@ -720,13 +720,22 @@ export default function GamePage() {
           const justEscaped = newFinishedPlayers.includes(user?.id) && !prevFinishedPlayers.current.includes(user?.id);
           if (justEscaped && !watchingPlayerId) {
             setSpectatorChoiceDialog(true);
-            if (soundEnabled) sounds.escape(); // Play dhol when we escape!
+            if (soundEnabled) {
+              // Play dhol beat twice for emphasis when WE escape!
+              sounds.escape();
+              setTimeout(() => sounds.escape(), 900);
+            }
+            toast.success('🎉 You escaped! Choose a player to spectate!', { duration: 5000 });
           }
           
-          // Check if ANYONE just escaped (by playing last card)
-          const newlyEscaped = newFinishedPlayers.filter(p => !prevFinishedPlayers.current.includes(p));
-          if (newlyEscaped.length > 0 && soundEnabled && data.type === 'game_update') {
-            sounds.escape(); // Play dhol for any escape
+          // Check if ANYONE else just escaped (by playing last card)
+          const newlyEscaped = newFinishedPlayers.filter(p => !prevFinishedPlayers.current.includes(p) && p !== user?.id);
+          if (newlyEscaped.length > 0 && soundEnabled) {
+            sounds.escape(); // Play dhol for any other player's escape
+            const escapedPlayer = (gameState?.players || room?.players || data.players)?.find(p => newlyEscaped.includes(p.id));
+            if (escapedPlayer) {
+              toast.info(`🎉 ${escapedPlayer.username} escaped!`, { duration: 3000 });
+            }
           }
           prevFinishedPlayers.current = newFinishedPlayers;
           
