@@ -667,16 +667,16 @@ export default function GamePage() {
               completed_trick: [],
               lead_suit: null,
               player_order: data.player_order,
-            player_card_counts: {},
-            finished_players: [],
-            loser: null,
-            status: 'playing',
-            players: data.players
-          });
-          setDisplayTrick([]);
-          setTrickResult(null);
-          setLastPlayedCardId(null);
-          break;
+              player_card_counts: {},
+              finished_players: [],
+              loser: null,
+              status: 'playing',
+              players: data.players
+            });
+            setDisplayTrick([]);
+            setTrickResult(null);
+            setLastPlayedCardId(null);
+            break;
           
         case 'game_update':
         case 'cards_taken':
