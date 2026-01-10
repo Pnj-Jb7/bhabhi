@@ -470,7 +470,7 @@ function PlayerSlot({
 }
 
 // Text Chat Component
-function TextChat({ messages, onSendMessage, players, isOpen, onToggle, isConnected }) {
+function TextChat({ messages, onSendMessage, players, isOpen, onToggle }) {
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -512,11 +512,6 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle, isConnec
       <div className="flex items-center justify-between p-3 border-b border-zinc-700">
         <h3 className="font-bold text-white flex items-center gap-2">
           <MessageCircle className="w-5 h-5" /> Chat
-          {isConnected ? (
-            <span className="w-2 h-2 bg-emerald-500 rounded-full" title="Connected"></span>
-          ) : (
-            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" title="Reconnecting..."></span>
-          )}
         </h3>
         <Button variant="ghost" size="icon" onClick={onToggle} className="h-8 w-8">
           <X className="w-4 h-4" />
@@ -525,9 +520,6 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle, isConnec
       
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        {!isConnected && (
-          <p className="text-yellow-500 text-center text-xs bg-yellow-500/10 p-2 rounded">⚠️ Reconnecting to chat...</p>
-        )}
         {messages.length === 0 ? (
           <p className="text-gray-500 text-center text-sm">No messages yet</p>
         ) : (
@@ -547,11 +539,10 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle, isConnec
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          placeholder={isConnected ? "Type a message..." : "Reconnecting..."}
+          placeholder="Type a message..."
           className="flex-1 bg-zinc-800 border-zinc-600 text-sm"
-          disabled={!isConnected}
         />
-        <Button onClick={handleSend} size="icon" className="shrink-0" disabled={!isConnected}>
+        <Button onClick={handleSend} size="icon" className="shrink-0">
           <Send className="w-4 h-4" />
         </Button>
       </div>
@@ -628,55 +619,35 @@ export default function GamePage() {
     return () => clearInterval(interval);
   }, [gameState?.status, fetchGameState]);
 
-  // WebSocket connection state
-  const [wsConnected, setWsConnected] = useState(false);
-
   // WebSocket
   useEffect(() => {
     if (!user || !roomCode) return;
 
-    const connectWebSocket = () => {
-      const ws = new WebSocket(`${WS_URL}/ws/${roomCode}/${user.id}`);
-      wsRef.current = ws;
+    const ws = new WebSocket(`${WS_URL}/ws/${roomCode}/${user.id}`);
+    wsRef.current = ws;
 
-      ws.onopen = () => {
-        setWsConnected(true);
-        console.log('WebSocket connected');
-      };
-
-      ws.onclose = () => {
-        setWsConnected(false);
-        console.log('WebSocket disconnected, reconnecting in 2s...');
-        setTimeout(connectWebSocket, 2000);
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setWsConnected(false);
-      };
-
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        
-        switch (data.type) {
-          case 'game_started':
-            setGameState({
-              your_hand: data.your_hand,
-              current_player: data.current_player,
-              current_trick: [],
-              completed_trick: [],
-              lead_suit: null,
-              player_order: data.player_order,
-              player_card_counts: {},
-              finished_players: [],
-              loser: null,
-              status: 'playing',
-              players: data.players
-            });
-            setDisplayTrick([]);
-            setTrickResult(null);
-            setLastPlayedCardId(null);
-            break;
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      
+      switch (data.type) {
+        case 'game_started':
+          setGameState({
+            your_hand: data.your_hand,
+            current_player: data.current_player,
+            current_trick: [],
+            completed_trick: [],
+            lead_suit: null,
+            player_order: data.player_order,
+            player_card_counts: {},
+            finished_players: [],
+            loser: null,
+            status: 'playing',
+            players: data.players
+          });
+          setDisplayTrick([]);
+          setTrickResult(null);
+          setLastPlayedCardId(null);
+          break;
           
         case 'game_update':
         case 'cards_taken':
@@ -749,22 +720,13 @@ export default function GamePage() {
           const justEscaped = newFinishedPlayers.includes(user?.id) && !prevFinishedPlayers.current.includes(user?.id);
           if (justEscaped && !watchingPlayerId) {
             setSpectatorChoiceDialog(true);
-            if (soundEnabled) {
-              // Play dhol beat twice for emphasis when WE escape!
-              sounds.escape();
-              setTimeout(() => sounds.escape(), 900);
-            }
-            toast.success('🎉 You escaped! Choose a player to spectate!', { duration: 5000 });
+            if (soundEnabled) sounds.escape(); // Play dhol when we escape!
           }
           
-          // Check if ANYONE else just escaped (by playing last card)
-          const newlyEscaped = newFinishedPlayers.filter(p => !prevFinishedPlayers.current.includes(p) && p !== user?.id);
-          if (newlyEscaped.length > 0 && soundEnabled) {
-            sounds.escape(); // Play dhol for any other player's escape
-            const escapedPlayer = (gameState?.players || room?.players || data.players)?.find(p => newlyEscaped.includes(p.id));
-            if (escapedPlayer) {
-              toast.info(`🎉 ${escapedPlayer.username} escaped!`, { duration: 3000 });
-            }
+          // Check if ANYONE just escaped (by playing last card)
+          const newlyEscaped = newFinishedPlayers.filter(p => !prevFinishedPlayers.current.includes(p));
+          if (newlyEscaped.length > 0 && soundEnabled && data.type === 'game_update') {
+            sounds.escape(); // Play dhol for any escape
           }
           prevFinishedPlayers.current = newFinishedPlayers;
           
@@ -778,11 +740,7 @@ export default function GamePage() {
             const giver = data.players?.find(p => p.id === data.giver_id);
             const receiver = data.players?.find(p => p.id === data.receiver_id);
             toast.success(`${giver?.username} escaped by giving ${data.cards_count} cards to ${receiver?.username}!`);
-            // Play dhol beat twice for card giving escape!
-            if (soundEnabled) {
-              sounds.escape();
-              setTimeout(() => sounds.escape(), 900);
-            }
+            if (soundEnabled) sounds.escape(); // Play dhol beat when someone escapes!
             if (data.all_hands) setAllHands(data.all_hands);
             
             // If WE just escaped, show choice dialog
@@ -847,17 +805,11 @@ export default function GamePage() {
       }
     };
 
-    connectWebSocket();
-
     return () => {
-      if (wsRef.current) {
-        wsRef.current.onclose = null; // Prevent reconnect on intentional close
-        wsRef.current.close();
-      }
+      ws.close();
       cleanupVoice();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, roomCode, navigate, soundEnabled, trickResult, voiceEnabled]);
+  }, [user, roomCode, navigate, soundEnabled, displayTrick.length, trickResult, voiceEnabled]);
 
   // Voice chat functions
   const handleVoiceSignal = (data) => {
@@ -1026,7 +978,7 @@ export default function GamePage() {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: 'chat_message', message }));
     } else {
-      toast.error('Chat disconnected. Reconnecting...');
+      toast.error('Chat not connected');
     }
   };
 
@@ -1171,34 +1123,10 @@ export default function GamePage() {
 
   return (
     <div className="game-page h-screen w-screen overflow-hidden relative bg-zinc-950" data-testid="game-page">
-      {/* Spectator Banner with button to choose player */}
+      {/* Spectator Banner */}
       {hasEscaped && !isGameOver && (
-        <div className="absolute top-0 left-0 right-0 bg-emerald-600 text-white text-center py-2 z-50 font-bold flex items-center justify-center gap-4">
-          <span>🎉 You escaped!</span>
-          {watchingPlayerId ? (
-            <span>Watching: {watchingPlayer?.username}</span>
-          ) : (
-            <Button 
-              size="sm" 
-              onClick={() => setSpectatorChoiceDialog(true)}
-              className="bg-white text-emerald-700 hover:bg-emerald-100 font-bold"
-            >
-              👁️ Choose Player to Watch
-            </Button>
-          )}
-          {watchingPlayerId && (
-            <Button 
-              size="sm" 
-              variant="outline"
-              onClick={() => {
-                setWatchingPlayerId(null);
-                setSpectatorChoiceDialog(true);
-              }}
-              className="border-white text-white hover:bg-emerald-500"
-            >
-              Change
-            </Button>
-          )}
+        <div className="absolute top-0 left-0 right-0 bg-emerald-600 text-white text-center py-2 z-50 font-bold">
+          🎉 You escaped! Watching as spectator - choose one player to watch
         </div>
       )}
 
@@ -1491,7 +1419,6 @@ export default function GamePage() {
         players={gameState.players || room.players || []}
         isOpen={chatOpen}
         onToggle={() => setChatOpen(!chatOpen)}
-        isConnected={wsConnected}
       />
 
       {/* Spectator Choice Dialog - choose ONE player to watch */}
