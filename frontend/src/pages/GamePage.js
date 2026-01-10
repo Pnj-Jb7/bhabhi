@@ -470,7 +470,7 @@ function PlayerSlot({
 }
 
 // Text Chat Component
-function TextChat({ messages, onSendMessage, players, isOpen, onToggle }) {
+function TextChat({ messages, onSendMessage, players, isOpen, onToggle, isConnected }) {
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -512,6 +512,11 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle }) {
       <div className="flex items-center justify-between p-3 border-b border-zinc-700">
         <h3 className="font-bold text-white flex items-center gap-2">
           <MessageCircle className="w-5 h-5" /> Chat
+          {isConnected ? (
+            <span className="w-2 h-2 bg-emerald-500 rounded-full" title="Connected"></span>
+          ) : (
+            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" title="Reconnecting..."></span>
+          )}
         </h3>
         <Button variant="ghost" size="icon" onClick={onToggle} className="h-8 w-8">
           <X className="w-4 h-4" />
@@ -520,6 +525,9 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle }) {
       
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
+        {!isConnected && (
+          <p className="text-yellow-500 text-center text-xs bg-yellow-500/10 p-2 rounded">⚠️ Reconnecting to chat...</p>
+        )}
         {messages.length === 0 ? (
           <p className="text-gray-500 text-center text-sm">No messages yet</p>
         ) : (
@@ -539,10 +547,11 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle }) {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Type a message..."
+          placeholder={isConnected ? "Type a message..." : "Reconnecting..."}
           className="flex-1 bg-zinc-800 border-zinc-600 text-sm"
+          disabled={!isConnected}
         />
-        <Button onClick={handleSend} size="icon" className="shrink-0">
+        <Button onClick={handleSend} size="icon" className="shrink-0" disabled={!isConnected}>
           <Send className="w-4 h-4" />
         </Button>
       </div>
