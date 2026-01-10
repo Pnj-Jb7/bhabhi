@@ -1161,10 +1161,34 @@ export default function GamePage() {
 
   return (
     <div className="game-page h-screen w-screen overflow-hidden relative bg-zinc-950" data-testid="game-page">
-      {/* Spectator Banner */}
+      {/* Spectator Banner with button to choose player */}
       {hasEscaped && !isGameOver && (
-        <div className="absolute top-0 left-0 right-0 bg-emerald-600 text-white text-center py-2 z-50 font-bold">
-          🎉 You escaped! Watching as spectator - choose one player to watch
+        <div className="absolute top-0 left-0 right-0 bg-emerald-600 text-white text-center py-2 z-50 font-bold flex items-center justify-center gap-4 flex-wrap">
+          <span>🎉 You escaped!</span>
+          {watchingPlayerId ? (
+            <span>👁️ Watching: {watchingPlayer?.username}</span>
+          ) : (
+            <Button 
+              size="sm" 
+              onClick={() => setSpectatorChoiceDialog(true)}
+              className="bg-white text-emerald-700 hover:bg-emerald-100 font-bold"
+            >
+              👁️ Choose Player to Watch
+            </Button>
+          )}
+          {watchingPlayerId && (
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => {
+                setWatchingPlayerId(null);
+                setSpectatorChoiceDialog(true);
+              }}
+              className="border-white text-white hover:bg-emerald-500"
+            >
+              Change
+            </Button>
+          )}
         </div>
       )}
 
