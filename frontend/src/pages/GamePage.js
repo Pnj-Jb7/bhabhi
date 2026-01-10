@@ -824,6 +824,7 @@ export default function GamePage() {
         default:
           break;
       }
+      };
     };
     
     connectWebSocket();
