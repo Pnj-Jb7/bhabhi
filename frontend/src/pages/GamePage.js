@@ -766,7 +766,11 @@ export default function GamePage() {
             const giver = data.players?.find(p => p.id === data.giver_id);
             const receiver = data.players?.find(p => p.id === data.receiver_id);
             toast.success(`${giver?.username} escaped by giving ${data.cards_count} cards to ${receiver?.username}!`);
-            if (soundEnabled) sounds.escape(); // Play dhol beat when someone escapes!
+            // Play dhol beat twice for card giving escape!
+            if (soundEnabled) {
+              sounds.escape();
+              setTimeout(() => sounds.escape(), 900);
+            }
             if (data.all_hands) setAllHands(data.all_hands);
             
             // If WE just escaped, show choice dialog
