@@ -619,12 +619,33 @@ export default function GamePage() {
     return () => clearInterval(interval);
   }, [gameState?.status, fetchGameState]);
 
-  // WebSocket
+  // WebSocket connection state
+  const [wsConnected, setWsConnected] = useState(false);
+
+  // WebSocket with auto-reconnect
   useEffect(() => {
     if (!user || !roomCode) return;
-
-    const ws = new WebSocket(`${WS_URL}/ws/${roomCode}/${user.id}`);
-    wsRef.current = ws;
+    
+    let reconnectTimeout;
+    
+    const connectWebSocket = () => {
+      const ws = new WebSocket(`${WS_URL}/ws/${roomCode}/${user.id}`);
+      wsRef.current = ws;
+      
+      ws.onopen = () => {
+        setWsConnected(true);
+        console.log('WebSocket connected');
+      };
+      
+      ws.onclose = () => {
+        setWsConnected(false);
+        console.log('WebSocket disconnected, reconnecting in 2s...');
+        reconnectTimeout = setTimeout(connectWebSocket, 2000);
+      };
+      
+      ws.onerror = () => {
+        setWsConnected(false);
+      };
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
