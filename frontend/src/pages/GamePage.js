@@ -647,7 +647,7 @@ export default function GamePage() {
         setWsConnected(false);
       };
 
-    ws.onmessage = (event) => {
+      ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       
       switch (data.type) {
