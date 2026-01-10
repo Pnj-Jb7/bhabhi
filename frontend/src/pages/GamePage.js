@@ -1454,15 +1454,15 @@ export default function GamePage() {
         onToggle={() => setChatOpen(!chatOpen)}
       />
 
-      {/* Spectator Choice Dialog - choose ONE player to watch */}
-      <Dialog open={spectatorChoiceDialog} onOpenChange={() => {}}>
+      {/* Spectator Choice Dialog - choose player to watch */}
+      <Dialog open={spectatorChoiceDialog} onOpenChange={(open) => !open && setSpectatorChoiceDialog(false)}>
         <DialogContent className="bg-zinc-900 border-zinc-700">
           <DialogHeader>
             <DialogTitle className="text-xl text-white">🎉 You Escaped!</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Choose <span className="text-primary font-bold">ONE player</span> whose cards you want to see.
+              Choose a player whose cards you want to see.
               <br />
-              <span className="text-yellow-400">⚠️ You cannot change this choice!</span>
+              <span className="text-emerald-400">You can change this later from the top banner.</span>
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-2 py-4">
