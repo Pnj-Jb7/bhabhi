@@ -568,11 +568,10 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle, wsConnec
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          placeholder={wsConnected ? "Type a message..." : "Connecting..."}
+          placeholder="Type a message..."
           className="flex-1 bg-zinc-800 border-zinc-600 text-sm"
-          disabled={!wsConnected}
         />
-        <Button onClick={handleSend} size="icon" className="shrink-0" disabled={!wsConnected}>
+        <Button onClick={handleSend} size="icon" className="shrink-0">
           <Send className="w-4 h-4" />
         </Button>
       </div>
