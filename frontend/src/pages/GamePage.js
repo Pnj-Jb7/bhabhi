@@ -1395,6 +1395,16 @@ export default function GamePage() {
     setCardRequestDialog({ open: false, requesterId: null, requesterName: '' });
   };
 
+  const forfeitGame = async () => {
+    if (!window.confirm('Are you sure you want to forfeit? You will become the Bhabhi!')) return;
+    try {
+      await axios.post(`${API}/game/${roomCode}/forfeit`);
+      toast.info('You forfeited the game');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Cannot forfeit');
+    }
+  };
+
   const restartGame = async () => {
     try {
       await axios.post(`${API}/game/${roomCode}/restart`);
