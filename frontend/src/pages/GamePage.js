@@ -1734,17 +1734,18 @@ export default function GamePage() {
         players={gameState.players || room.players || []}
         isOpen={chatOpen}
         onToggle={() => setChatOpen(!chatOpen)}
+        wsConnected={wsConnected}
       />
 
-      {/* Spectator Choice Dialog - choose player to watch */}
-      <Dialog open={spectatorChoiceDialog} onOpenChange={(open) => !open && setSpectatorChoiceDialog(false)}>
+      {/* Spectator Choice Dialog - choose player to watch (CANNOT CHANGE AFTER!) */}
+      <Dialog open={spectatorChoiceDialog} onOpenChange={() => {}}>
         <DialogContent className="bg-zinc-900 border-zinc-700">
           <DialogHeader>
             <DialogTitle className="text-xl text-white">🎉 You Escaped!</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Choose ONE player whose cards you want to see.
+              Choose <span className="text-primary font-bold">ONE player</span> whose cards you want to see.
               <br />
-              <span className="text-emerald-400">You can change this later from the top banner.</span>
+              <span className="text-yellow-400">⚠️ You CANNOT change this choice! When they escape, you can't see anyone.</span>
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-2 py-4">
@@ -1753,8 +1754,9 @@ export default function GamePage() {
                 key={player.id}
                 onClick={async () => {
                   setWatchingPlayerId(player.id);
+                  setSpectatorLocked(true); // Lock the choice!
                   setSpectatorChoiceDialog(false);
-                  toast.success(`Now watching ${player.username}'s cards`);
+                  toast.success(`Now watching ${player.username}'s cards. You cannot change this!`);
                   // Fetch latest game state to get all hands
                   await fetchGameState();
                 }}
