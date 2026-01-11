@@ -836,14 +836,19 @@ export default function GamePage() {
             });
           }
           
-          // Check if WE just escaped - show spectator choice dialog
+          // Check if the player we're watching has escaped - lock spectator view
+          if (spectatorLocked && watchingPlayerId && newFinishedPlayers.includes(watchingPlayerId)) {
+            toast.info(`${(data.players || []).find(p => p.id === watchingPlayerId)?.username} has escaped! You can no longer see anyone's cards.`);
+            setWatchingPlayerId(null);
+          }
+          
+          // Check if WE just escaped - show spectator choice dialog (only if not already locked)
           const justEscaped = newFinishedPlayers.includes(user?.id) && !prevFinishedPlayers.current.includes(user?.id);
-          if (justEscaped && !watchingPlayerId) {
+          if (justEscaped && !spectatorLocked) {
             setSpectatorChoiceDialog(true);
-            // Play dhol beat TWICE for emphasis when WE escape!
+            // Play dhol for escape!
             if (soundEnabled) {
               sounds.escape();
-              setTimeout(() => sounds.escape(), 900);
             }
             const myPosition = newFinishedPlayers.indexOf(user?.id) + 1;
             toast.success(`🎉 You escaped! Position: ${myPosition}${myPosition === 1 ? 'st' : myPosition === 2 ? 'nd' : myPosition === 3 ? 'rd' : 'th'}!`, { duration: 5000 });
