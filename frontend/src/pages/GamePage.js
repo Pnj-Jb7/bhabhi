@@ -460,30 +460,30 @@ function PlayerSlot({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className={`
-              flex flex-col items-center p-3 rounded-2xl transition-all backdrop-blur-sm
-              ${isCurrentPlayer ? 'bg-yellow-500/40 ring-3 ring-yellow-400 shadow-lg shadow-yellow-500/30' : 'bg-black/50'}
+              flex flex-col items-center p-2 rounded-xl transition-all backdrop-blur-sm
+              ${isCurrentPlayer ? 'bg-yellow-500/40 ring-2 ring-yellow-400 shadow-lg shadow-yellow-500/30' : 'bg-black/50'}
               ${isFinished ? 'bg-emerald-900/50 ring-2 ring-emerald-500' : ''}
             `}
           >
             <div className={`
-              w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-2xl font-bold border-3 relative
+              w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg font-bold border-2 relative
               ${isBot ? 'bg-gradient-to-br from-cyan-400 to-blue-600 border-cyan-300' : 'bg-gradient-to-br from-violet-500 to-pink-500 border-white/40'}
-              ${isCurrentPlayer ? 'ring-3 ring-yellow-400 ring-offset-2 ring-offset-transparent animate-bounce' : ''}
+              ${isCurrentPlayer ? 'ring-2 ring-yellow-400 animate-pulse' : ''}
               ${isFinished ? 'bg-emerald-600 border-emerald-400' : ''}
             `}>
               {isFinished ? '✓' : isBot ? '🤖' : player.username?.[0]?.toUpperCase()}
               {/* Position badge */}
               {escapePosition && (
-                <span className="absolute -top-2 -right-2 text-lg">{getPositionBadge(escapePosition)}</span>
+                <span className="absolute -top-1 -right-1 text-sm">{getPositionBadge(escapePosition)}</span>
               )}
             </div>
             
-            <div className="text-center mt-2">
-              <p className={`text-sm font-bold ${isMe ? 'text-primary' : 'text-white'}`}>
-                {isMe ? 'You' : player.username}
+            <div className="text-center mt-1">
+              <p className={`text-xs font-bold ${isMe ? 'text-primary' : 'text-white'}`}>
+                {isMe ? 'You' : player.username?.slice(0, 6)}
               </p>
-              <p className={`text-xs font-medium ${isFinished ? 'text-emerald-400' : 'text-gray-300'}`}>
-                {isFinished ? `🎉 ${escapePosition ? getPositionBadge(escapePosition) + ' ' : ''}Escaped!` : `🃏 ${cardCount} cards`}
+              <p className={`text-[10px] font-medium ${isFinished ? 'text-emerald-400' : 'text-gray-300'}`}>
+                {isFinished ? `${escapePosition ? getPositionBadge(escapePosition) : '✓'}` : `${cardCount}c`}
               </p>
             </div>
           </motion.div>
