@@ -822,12 +822,28 @@ export default function GamePage() {
           
         case 'card_request':
           // Someone is requesting YOUR cards (you have ≤3)
-          setCardRequestDialog({
-            open: true,
-            requesterId: data.requester_id,
-            requesterName: data.requester_name
-          });
-          if (soundEnabled) sounds.yourTurn();
+          if (!data.target_id || data.target_id === user?.id) {
+            setCardRequestDialog({
+              open: true,
+              requesterId: data.requester_id,
+              requesterName: data.requester_name
+            });
+            if (soundEnabled) sounds.yourTurn();
+            toast.info(`${data.requester_name} wants your cards!`, { duration: 5000 });
+          }
+          break;
+        
+        case 'card_request_broadcast':
+          // Backup broadcast - only show to target player
+          if (data.target_id === user?.id) {
+            setCardRequestDialog({
+              open: true,
+              requesterId: data.requester_id,
+              requesterName: data.requester_name
+            });
+            if (soundEnabled) sounds.yourTurn();
+            toast.info(`${data.requester_name} wants your cards!`, { duration: 5000 });
+          }
           break;
           
         case 'card_request_declined':
