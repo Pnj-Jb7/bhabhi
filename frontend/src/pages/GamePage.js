@@ -1546,24 +1546,30 @@ export default function GamePage() {
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
           }} />
 
-          {/* Center - Show all played cards in the trick */}
+          {/* Center - Show reactions and emojis */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="flex gap-2">
-              {currentTrick.map((play, idx) => {
-                const player = (gameState.players || room.players)?.find(p => p.id === play.player_id);
+            <AnimatePresence>
+              {Object.entries(playerReactions).map(([playerId, data]) => {
+                const player = (gameState.players || room.players)?.find(p => p.id === playerId);
+                if (!data || !player) return null;
                 return (
-                  <div key={idx} className="flex flex-col items-center">
-                    <div className={`w-12 h-16 md:w-14 md:h-20 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center border-2 ${
-                      play.suit === 'hearts' || play.suit === 'diamonds' ? 'text-red-500' : 'text-black'
-                    }`}>
-                      <span className="text-lg font-bold">{play.rank}</span>
-                      <span className="text-xl">{SUIT_DISPLAY[play.suit]?.symbol}</span>
-                    </div>
-                    <span className="text-xs text-white/70 mt-1">{player?.username?.slice(0, 6)}</span>
-                  </div>
+                  <motion.div
+                    key={playerId}
+                    initial={{ opacity: 0, scale: 0.5, y: 50 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, y: -50 }}
+                    className="absolute bg-white/95 text-black px-4 py-2 rounded-2xl shadow-xl text-center"
+                    style={{
+                      // Spread reactions around center
+                      transform: `translate(${Math.random() * 100 - 50}px, ${Math.random() * 60 - 30}px)`
+                    }}
+                  >
+                    <div className="text-2xl">{data.text}</div>
+                    <div className="text-xs text-gray-600 font-bold">{player.username}</div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </AnimatePresence>
           </div>
 
           {/* Other Players */}
