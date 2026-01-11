@@ -413,13 +413,13 @@ function PlayerSlot({
 }) {
   const isBot = player?.is_bot || player?.id?.startsWith('bot_');
   
-  // Spread out positions more
+  // Use corners for better spacing
   const positionStyles = {
-    'top': 'top-20 left-1/2 -translate-x-1/2',
-    'top-left': 'top-20 left-[10%]',
-    'top-right': 'top-20 right-[10%]',
-    'left': 'left-2 top-[40%] -translate-y-1/2',
-    'right': 'right-2 top-[40%] -translate-y-1/2',
+    'top': 'top-4 left-1/2 -translate-x-1/2',
+    'top-left': 'top-4 left-4',
+    'top-right': 'top-4 right-4',
+    'left': 'left-4 top-1/2 -translate-y-1/2',
+    'right': 'right-4 top-1/2 -translate-y-1/2',
   };
   
   const getPositionBadge = (pos) => {
