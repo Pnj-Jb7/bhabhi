@@ -397,7 +397,7 @@ function LargeCard({ card, highlight = false, highlightColor = 'yellow', isLastP
   );
 }
 
-// Player slot with card
+// Player slot with card and reactions
 function PlayerSlot({ 
   player, 
   cardCount, 
@@ -409,14 +409,15 @@ function PlayerSlot({
   position,
   isLastCardPlayed,
   isMe = false,
-  escapePosition = null
+  escapePosition = null,
+  reaction = null
 }) {
   const isBot = player?.is_bot || player?.id?.startsWith('bot_');
   
   const positionStyles = {
-    'top': 'top-4 left-1/2 -translate-x-1/2',
-    'top-left': 'top-4 left-[15%]',
-    'top-right': 'top-4 right-[15%]',
+    'top': 'top-16 left-1/2 -translate-x-1/2',
+    'top-left': 'top-16 left-[20%]',
+    'top-right': 'top-16 right-[20%]',
     'left': 'left-4 top-1/2 -translate-y-1/2',
     'right': 'right-4 top-1/2 -translate-y-1/2',
   };
@@ -433,6 +434,20 @@ function PlayerSlot({
 
   return (
     <div className={`absolute ${positionStyles[position]} z-10`}>
+      {/* Reaction bubble above player */}
+      <AnimatePresence>
+        {reaction && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0 }}
+            className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-3 py-1 rounded-full shadow-lg text-sm font-bold whitespace-nowrap z-20"
+          >
+            {reaction}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       {/* Show EITHER the played card OR the avatar - card replaces avatar */}
       <AnimatePresence mode="wait">
         {playedCard ? (
