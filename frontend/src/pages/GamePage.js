@@ -1505,7 +1505,7 @@ export default function GamePage() {
           <DialogHeader>
             <DialogTitle className="text-xl text-white">🎉 You Escaped!</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Choose a player whose cards you want to see.
+              Choose ONE player whose cards you want to see.
               <br />
               <span className="text-emerald-400">You can change this later from the top banner.</span>
             </DialogDescription>
@@ -1514,10 +1514,12 @@ export default function GamePage() {
             {activePlayers.map(player => (
               <Button
                 key={player.id}
-                onClick={() => {
+                onClick={async () => {
                   setWatchingPlayerId(player.id);
                   setSpectatorChoiceDialog(false);
                   toast.success(`Now watching ${player.username}'s cards`);
+                  // Fetch latest game state to get all hands
+                  await fetchGameState();
                 }}
                 className="w-full h-12 justify-start gap-3 bg-zinc-800 hover:bg-zinc-700"
               >
