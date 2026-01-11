@@ -899,20 +899,20 @@ export default function GamePage() {
               requesterName: data.requester_name
             });
             if (soundEnabled) sounds.yourTurn();
-            toast.info(`${data.requester_name} wants your cards!`, { duration: 5000 });
+            toast.info(`🃏 ${data.requester_name} wants your cards! Accept to ESCAPE!`, { duration: 10000 });
           }
           break;
         
         case 'card_request_broadcast':
           // Backup broadcast - only show to target player
-          if (data.target_id === user?.id) {
+          if (data.target_id === user?.id && !cardRequestDialog.open) {
             setCardRequestDialog({
               open: true,
               requesterId: data.requester_id,
               requesterName: data.requester_name
             });
             if (soundEnabled) sounds.yourTurn();
-            toast.info(`${data.requester_name} wants your cards!`, { duration: 5000 });
+            toast.info(`🃏 ${data.requester_name} wants your cards! Accept to ESCAPE!`, { duration: 10000 });
           }
           break;
           
@@ -940,18 +940,34 @@ export default function GamePage() {
             createPeer(data.user_id, true);
           }
           setVoiceUsers(prev => [...new Set([...prev, data.user_id])]);
-          toast.info(`${data.username} joined voice chat`);
+          toast.info(`🎤 ${data.username} joined voice chat`);
           break;
           
         case 'voice_user_left':
           // Someone left voice chat
           destroyPeer(data.user_id);
           setVoiceUsers(prev => prev.filter(id => id !== data.user_id));
+          setSpeakingUsers(prev => {
+            const newState = { ...prev };
+            delete newState[data.user_id];
+            return newState;
+          });
+          break;
+        
+        case 'voice_status':
+          // Someone's speaking status changed
+          if (data.user_id !== user?.id) {
+            setSpeakingUsers(prev => ({
+              ...prev,
+              [data.user_id]: data.is_speaking
+            }));
+          }
           break;
           
         case 'game_restarted':
           navigate(`/room/${roomCode}`);
-          setWatchingPlayerId(null); // Reset spectator choice
+          setWatchingPlayerId(null);
+          setSpectatorLocked(false);
           setSpectatorChoiceDialog(false);
           cleanupVoice();
           break;
