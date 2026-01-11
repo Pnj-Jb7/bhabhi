@@ -1278,8 +1278,6 @@ export default function GamePage() {
     
     // Reset timer when playing
     setTurnTimer(0);
-      return;
-    }
 
     setIsPlaying(true);
     try {
