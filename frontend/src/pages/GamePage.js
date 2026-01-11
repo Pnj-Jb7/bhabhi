@@ -1308,29 +1308,33 @@ export default function GamePage() {
     }
   };
   
-  // Send emoji/phrase reaction - shows under player name
+  // Send emoji/phrase reaction - shows in center of screen
   const sendReaction = (reaction, isEmoji = true) => {
+    // Show locally immediately (even if WebSocket is not ready)
+    const timestamp = Date.now();
+    setPlayerReactions(prev => ({
+      ...prev,
+      [user.id]: { text: reaction, timestamp }
+    }));
+    
+    // Clear after 3 seconds
+    setTimeout(() => {
+      setPlayerReactions(prev => {
+        const newReactions = { ...prev };
+        if (newReactions[user.id]?.timestamp === timestamp) {
+          delete newReactions[user.id];
+        }
+        return newReactions;
+      });
+    }, 3000);
+    
+    // Send to others via WebSocket
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ 
         type: 'reaction',
         reaction,
         is_emoji: isEmoji
       }));
-      // Show locally immediately
-      setPlayerReactions(prev => ({
-        ...prev,
-        [user.id]: { text: reaction, timestamp: Date.now() }
-      }));
-      // Clear after 3 seconds
-      setTimeout(() => {
-        setPlayerReactions(prev => {
-          const newReactions = { ...prev };
-          if (newReactions[user.id]?.timestamp <= Date.now() - 2900) {
-            delete newReactions[user.id];
-          }
-          return newReactions;
-        });
-      }, 3000);
     }
   };
 
