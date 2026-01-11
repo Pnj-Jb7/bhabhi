@@ -619,6 +619,7 @@ export default function GamePage() {
   const [isMuted, setIsMuted] = useState(true);
   const [connectedPeers, setConnectedPeers] = useState({});
   const [voiceUsers, setVoiceUsers] = useState([]); // Users in voice chat
+  const [speakingUsers, setSpeakingUsers] = useState({}); // Track who is speaking: {oderId: true/false}
   
   const wsRef = useRef(null);
   const prevCurrentPlayer = useRef(null);
@@ -627,6 +628,8 @@ export default function GamePage() {
   const localStreamRef = useRef(null);
   const peersRef = useRef({});
   const audioElementsRef = useRef({});
+  const audioAnalyserRef = useRef(null);
+  const speakingIntervalRef = useRef(null);
 
   const fetchGameState = useCallback(async () => {
     try {
