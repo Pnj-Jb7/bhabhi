@@ -1682,38 +1682,34 @@ export default function GamePage() {
                 {phrase}
               </button>
             ))}
-            {/* My reaction display */}
-            {myReaction && (
-              <span className="bg-yellow-500 text-black px-2 py-1 rounded-full text-sm font-bold animate-bounce">
-                {myReaction}
-              </span>
-            )}
           </div>
           
-          {/* Cards - Scrollable for many cards */}
-          <div className="flex justify-center items-end max-w-full overflow-x-auto pb-3 px-2 scrollbar-hide">
-            <div className="flex" style={{ minWidth: myHand.length > 15 ? `${myHand.length * 25}px` : 'auto' }}>
+          {/* Cards - Full width, properly spaced */}
+          <div className="w-full px-2 pb-2 overflow-x-auto scrollbar-hide">
+            <div className="flex justify-center items-end" style={{ 
+              minWidth: myHand.length > 10 ? `${Math.max(myHand.length * 45, 300)}px` : 'auto',
+              paddingLeft: myHand.length > 10 ? '20px' : '0',
+              paddingRight: myHand.length > 10 ? '20px' : '0'
+            }}>
               {myHand.map((card, index) => {
                 const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
                 const isSelected = selectedCard?.suit === card.suit && selectedCard?.rank === card.rank;
                 
-                // Tighter overlap for many cards - scales down more aggressively
-                const overlap = myHand.length > 25 ? -52 : myHand.length > 20 ? -48 : myHand.length > 15 ? -44 : myHand.length > 10 ? -38 : myHand.length > 6 ? -30 : -20;
-                
-                // Scale down cards when there are many
-                const cardScale = myHand.length > 20 ? 0.7 : myHand.length > 15 ? 0.8 : myHand.length > 10 ? 0.9 : 1;
+                // Better overlap calculation - cards should be more visible
+                const totalCards = myHand.length;
+                const overlap = totalCards > 20 ? -35 : totalCards > 15 ? -30 : totalCards > 10 ? -25 : totalCards > 6 ? -18 : -10;
                 
                 return (
                   <motion.div
                     key={`${card.suit}-${card.rank}`}
                     initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: isSelected ? -25 : 0, scale: cardScale }}
+                    animate={{ opacity: 1, y: isSelected ? -30 : 0 }}
                     transition={{ delay: index * 0.01 }}
                     style={{ 
                       marginLeft: index === 0 ? 0 : overlap,
                       zIndex: isSelected ? 100 : index 
                     }}
-                    className="relative cursor-pointer"
+                    className="relative cursor-pointer flex-shrink-0"
                     onClick={() => isMyTurn && !isGameOver && setSelectedCard(isSelected ? null : card)}
                   >
                     <div 
