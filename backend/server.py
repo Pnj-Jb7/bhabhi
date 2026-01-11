@@ -458,6 +458,33 @@ async def process_bot_turn(room_code: str):
     if not hand:
         return
     
+    # Bot auto-forfeit if they have way too many cards (35+) - they can't win
+    if len(hand) >= 35:
+        game["loser"] = current_player_id
+        game["status"] = "finished"
+        active_players = [pid for pid in game["player_order"] if pid not in game["finished_players"] and pid != current_player_id]
+        game["finished_players"].extend(active_players)
+        
+        # Update stats for human players
+        for pid in game["player_order"]:
+            if not pid.startswith("bot_"):
+                await db.users.update_one({"id": pid}, {"$inc": {"games_played": 1}})
+        for pid in game["finished_players"]:
+            if not pid.startswith("bot_"):
+                await db.users.update_one({"id": pid}, {"$inc": {"games_won": 1}})
+        
+        await db.games.update_one({"room_code": room_code}, {"$set": game})
+        await db.rooms.update_one({"code": room_code}, {"$set": {"status": "finished"}})
+        
+        await manager.broadcast_to_room(room_code, {
+            "type": "game_update",
+            "status": "finished",
+            "loser": current_player_id,
+            "finished_players": game["finished_players"],
+            "players": room["players"]
+        })
+        return
+    
     # Choose card to play
     is_first_trick = game.get("is_first_trick", False)
     lead_suit = game.get("lead_suit")
