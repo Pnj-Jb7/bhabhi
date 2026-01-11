@@ -1591,22 +1591,25 @@ export default function GamePage() {
             )}
           </div>
           
-          {/* Cards */}
-          <div className="flex justify-center items-end max-w-full overflow-x-auto pb-3 px-2">
-            <div className="flex">
+          {/* Cards - Scrollable for many cards */}
+          <div className="flex justify-center items-end max-w-full overflow-x-auto pb-3 px-2 scrollbar-hide">
+            <div className="flex" style={{ minWidth: myHand.length > 15 ? `${myHand.length * 25}px` : 'auto' }}>
               {myHand.map((card, index) => {
                 const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
                 const isSelected = selectedCard?.suit === card.suit && selectedCard?.rank === card.rank;
                 
-                // Tighter overlap: -45px for many cards, -35px for medium, -25px for few
-                const overlap = myHand.length > 20 ? -48 : myHand.length > 13 ? -42 : myHand.length > 8 ? -35 : -25;
+                // Tighter overlap for many cards - scales down more aggressively
+                const overlap = myHand.length > 25 ? -52 : myHand.length > 20 ? -48 : myHand.length > 15 ? -44 : myHand.length > 10 ? -38 : myHand.length > 6 ? -30 : -20;
+                
+                // Scale down cards when there are many
+                const cardScale = myHand.length > 20 ? 0.7 : myHand.length > 15 ? 0.8 : myHand.length > 10 ? 0.9 : 1;
                 
                 return (
                   <motion.div
                     key={`${card.suit}-${card.rank}`}
                     initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: isSelected ? -25 : 0 }}
-                    transition={{ delay: index * 0.015 }}
+                    animate={{ opacity: 1, y: isSelected ? -25 : 0, scale: cardScale }}
+                    transition={{ delay: index * 0.01 }}
                     style={{ 
                       marginLeft: index === 0 ? 0 : overlap,
                       zIndex: isSelected ? 100 : index 
