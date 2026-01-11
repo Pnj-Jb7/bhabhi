@@ -869,8 +869,12 @@ async def get_game_state(room_code: str, user: dict = Depends(get_current_user))
     
     room = await db.rooms.find_one({"code": room_code.upper()}, {"_id": 0})
     
+    # Check if user has escaped (is spectator)
+    is_spectator = user["id"] in game.get("finished_players", [])
+    
     return {
         "your_hand": game["player_hands"].get(user["id"], []),
+        "all_hands": game["player_hands"] if is_spectator else None,  # Show all hands to spectators
         "current_player": game["player_order"][game["current_player_index"]] if game["player_order"] else None,
         "current_trick": game.get("current_trick", []),
         "lead_suit": game.get("lead_suit"),
