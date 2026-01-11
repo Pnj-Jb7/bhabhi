@@ -439,7 +439,7 @@ async def process_trick_completion(game: dict, room: dict, room_code: str):
 
 async def process_bot_turn(room_code: str):
     """Process bot's turn"""
-    await asyncio.sleep(1.0)  # 1 second delay - faster gameplay
+    await asyncio.sleep(0.5)  # 1 second delay - faster gameplay
     
     game = await db.games.find_one({"room_code": room_code}, {"_id": 0})
     if not game or game.get("status") != "playing":
@@ -509,7 +509,7 @@ async def process_bot_turn(room_code: str):
     
     # If trick complete, wait for players to see the last card, then process
     if trick_complete:
-        await asyncio.sleep(2.0)  # 2 seconds to see the complete trick with last card
+        await asyncio.sleep(1.0)  # 2 seconds to see the complete trick with last card
         game = await process_trick_completion(game, room, room_code)
         
         # Save and broadcast the result
@@ -520,7 +520,7 @@ async def process_bot_turn(room_code: str):
         await broadcast_game_state(game, room, room_code)
         
         # Wait briefly then clear
-        await asyncio.sleep(2.0)  # 2 seconds to see the result
+        await asyncio.sleep(1.0)  # 2 seconds to see the result
         game["completed_trick"] = []
         game["last_trick_result"] = None
         await db.games.update_one(
@@ -965,7 +965,7 @@ async def play_card(room_code: str, data: PlayCardRequest, user: dict = Depends(
     
     if trick_complete:
         # Wait for players to see the complete trick (especially last card)
-        await asyncio.sleep(2.0)
+        await asyncio.sleep(1.0)
         
         game = await process_trick_completion(game, room, room_code.upper())
         
@@ -977,7 +977,7 @@ async def play_card(room_code: str, data: PlayCardRequest, user: dict = Depends(
         await broadcast_game_state(game, room, room_code.upper())
         
         # Wait for players to see the result
-        await asyncio.sleep(2.0)
+        await asyncio.sleep(1.0)
         
         # Clear completed trick
         game["completed_trick"] = []
