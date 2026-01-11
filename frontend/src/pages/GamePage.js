@@ -701,9 +701,15 @@ export default function GamePage() {
             if (data.current_player === user?.id && prevCurrentPlayer.current !== user?.id) {
               sounds.yourTurn();
             }
+            // Game finished - play sounds
             if (data.status === 'finished' && data.loser) {
-              if (data.loser === user?.id) sounds.lose();
-              else sounds.win();
+              if (data.loser === user?.id) {
+                sounds.lose();
+              } else {
+                // Winner - play dhol twice!
+                sounds.escape();
+                setTimeout(() => sounds.escape(), 900);
+              }
             }
           }
           prevCurrentPlayer.current = data.current_player;
