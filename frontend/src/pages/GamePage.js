@@ -566,10 +566,11 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle }) {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Type a message..."
+          placeholder={wsConnected ? "Type a message..." : "Connecting..."}
           className="flex-1 bg-zinc-800 border-zinc-600 text-sm"
+          disabled={!wsConnected}
         />
-        <Button onClick={handleSend} size="icon" className="shrink-0">
+        <Button onClick={handleSend} size="icon" className="shrink-0" disabled={!wsConnected}>
           <Send className="w-4 h-4" />
         </Button>
       </div>
@@ -595,15 +596,23 @@ export default function GamePage() {
   // Card request dialog (when someone requests YOUR cards - you have ≤3)
   const [cardRequestDialog, setCardRequestDialog] = useState({ open: false, requesterId: null, requesterName: '' });
   
-  // Spectator mode - choose ONE player to watch
+  // Spectator mode - can only watch ONE player (cannot switch!)
   const [allHands, setAllHands] = useState(null);
   const [spectatorChoiceDialog, setSpectatorChoiceDialog] = useState(false);
   const [watchingPlayerId, setWatchingPlayerId] = useState(null);
+  const [spectatorLocked, setSpectatorLocked] = useState(false); // Once chosen, cannot change
   const [escapePositions, setEscapePositions] = useState({}); // Track escape order: {playerId: position}
   
   // Text chat
   const [chatMessages, setChatMessages] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
+  
+  // WebSocket connection state
+  const [wsConnected, setWsConnected] = useState(false);
+  
+  // Turn timer
+  const [turnTimer, setTurnTimer] = useState(null);
+  const turnTimerRef = useRef(null);
   
   // Voice chat
   const [voiceEnabled, setVoiceEnabled] = useState(false);
