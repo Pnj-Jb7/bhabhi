@@ -1003,26 +1003,39 @@ export default function GamePage() {
 
   // Turn timer effect - auto play highest card after 12 seconds
   useEffect(() => {
+    // Clear any existing timer
     if (turnTimerRef.current) {
       clearInterval(turnTimerRef.current);
+      turnTimerRef.current = null;
     }
     
-    if (gameState?.current_player === user?.id && gameState?.status === 'playing' && turnTimer > 0) {
+    // Only start timer if it's my turn and game is playing
+    const isMyTurnNow = gameState?.current_player === user?.id && gameState?.status === 'playing';
+    
+    if (isMyTurnNow) {
+      // Reset timer to 12 when it becomes my turn
+      setTurnTimer(12);
+      
       turnTimerRef.current = setInterval(() => {
         setTurnTimer(prev => {
           if (prev <= 1) {
-            // Auto-play highest card
+            // Time's up - auto-play
+            clearInterval(turnTimerRef.current);
+            turnTimerRef.current = null;
             autoPlayCard();
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
+    } else {
+      setTurnTimer(0);
     }
     
     return () => {
       if (turnTimerRef.current) {
         clearInterval(turnTimerRef.current);
+        turnTimerRef.current = null;
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
