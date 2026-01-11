@@ -1496,24 +1496,29 @@ export default function GamePage() {
   // Find last card in current trick
   const currentTrick = displayTrick.length > 0 ? displayTrick : (gameState.current_trick || []);
   const lastCardInTrick = currentTrick.length > 0 ? currentTrick[currentTrick.length - 1] : null;
+  
+  // My reaction
+  const myReaction = playerReactions[user?.id]?.text;
 
   return (
     <div className="game-page h-screen w-screen overflow-hidden relative bg-zinc-950" data-testid="game-page">
-      {/* Spectator Banner - locked choice, no change button */}
+      {/* Spectator Banner - LEFT side, compact */}
       {hasEscaped && !isGameOver && (
-        <div className="absolute top-0 left-0 right-0 bg-emerald-600 text-white text-center py-2 z-50 font-bold flex items-center justify-center gap-4 flex-wrap">
-          <span>🎉 You escaped!</span>
+        <div className="absolute top-2 left-2 z-40 bg-emerald-600/90 text-white px-3 py-2 rounded-lg font-bold text-sm max-w-[200px]">
+          <div className="flex items-center gap-2">
+            <span>🎉 Escaped!</span>
+          </div>
           {watchingPlayerId && watchingPlayer ? (
-            <span>👁️ Watching: {watchingPlayer.username}'s cards</span>
+            <div className="text-xs mt-1">👁️ {watchingPlayer.username}</div>
           ) : spectatorLocked ? (
-            <span className="text-yellow-200">Your spectate target escaped. No cards to see.</span>
+            <div className="text-xs mt-1 text-yellow-200">No cards to see</div>
           ) : (
             <Button 
               size="sm" 
               onClick={() => setSpectatorChoiceDialog(true)}
-              className="bg-white text-emerald-700 hover:bg-emerald-100 font-bold"
+              className="bg-white text-emerald-700 hover:bg-emerald-100 font-bold text-xs h-6 mt-1"
             >
-              👁️ Choose Player to Watch
+              Choose Player
             </Button>
           )}
         </div>
