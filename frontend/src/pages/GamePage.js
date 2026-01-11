@@ -1597,7 +1597,6 @@ export default function GamePage() {
                 position={position}
                 isLastCardPlayed={isLastCard && lastPlayedCardId === player.id}
                 escapePosition={escapePos}
-                reaction={reaction}
               />
             );
           })}
