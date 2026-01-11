@@ -1753,7 +1753,21 @@ export default function GamePage() {
         </div>
       </div>
 
-      {/* Controls */}
+      {/* Forfeit button - top left */}
+      {!hasEscaped && !isGameOver && (
+        <div className="absolute top-4 left-4 z-40">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={forfeitGame}
+            className="bg-red-900/50 border-red-600 text-red-400 hover:bg-red-800/50 text-xs"
+          >
+            🏳️ Forfeit
+          </Button>
+        </div>
+      )}
+
+      {/* Controls - top right */}
       <div className="absolute top-4 right-4 flex items-center gap-2 z-40">
         {/* Voice Chat Controls */}
         {!voiceEnabled ? (
