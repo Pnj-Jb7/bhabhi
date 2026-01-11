@@ -146,6 +146,20 @@ export default function LobbyPage() {
           <span className="text-muted-foreground hidden md:block">
             Welcome, <span className="text-primary font-semibold">{user?.username}</span>
           </span>
+          {/* Stats Display */}
+          <div className="hidden md:flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-1">
+              <Trophy className="w-4 h-4 text-yellow-500" />
+              <span className="text-muted-foreground">
+                {user?.games_won || 0}W / {(user?.games_played || 0) - (user?.games_won || 0)}L
+              </span>
+            </div>
+            {user?.games_played > 0 && (
+              <span className="text-emerald-400 font-bold">
+                {Math.round(((user?.games_won || 0) / (user?.games_played || 1)) * 100)}%
+              </span>
+            )}
+          </div>
           <Button 
             variant="ghost" 
             size="icon"
