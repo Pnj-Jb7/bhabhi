@@ -273,10 +273,21 @@ const createSoundEffects = () => {
     } catch (e) {}
   };
 
+  // Play actual dhol.mp3 file for escapes/wins
+  const playDholMP3 = () => {
+    try {
+      const audio = new Audio('/dhol.mp3');
+      audio.volume = 0.7;
+      audio.play().catch(e => console.log('Audio play failed:', e));
+    } catch (e) {
+      console.log('Dhol sound error:', e);
+    }
+  };
+
   return {
     playCard: playCardSlide,
     tochoo: playTochooAww,
-    escape: playDholBeat,
+    escape: playDholMP3,  // Use actual dhol.mp3
     pickup: () => {
       // Card pickup swoosh (reversed slide)
       try {
@@ -302,7 +313,7 @@ const createSoundEffects = () => {
         noise.stop(ctx.currentTime + 0.2);
       } catch (e) {}
     },
-    win: playDholBeat,
+    win: playDholMP3,  // Use actual dhol.mp3
     lose: playSadTrombone,
     yourTurn: () => {
       playPing(880, 0.25);
