@@ -503,7 +503,7 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle, wsConnec
   }, [messages]);
 
   const handleSend = () => {
-    if (message.trim() && wsConnected) {
+    if (message.trim()) {
       onSendMessage(message.trim());
       setMessage('');
     }
@@ -521,9 +521,6 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle, wsConnec
         className="fixed bottom-24 right-4 z-40 rounded-full w-14 h-14 bg-primary/90 hover:bg-primary shadow-lg"
       >
         <MessageCircle className="w-6 h-6" />
-        {!wsConnected && (
-          <span className="absolute -top-1 -left-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-        )}
         {messages.length > 0 && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center">
             {messages.length > 9 ? '9+' : messages.length}
@@ -542,7 +539,7 @@ function TextChat({ messages, onSendMessage, players, isOpen, onToggle, wsConnec
           {wsConnected ? (
             <span className="w-2 h-2 bg-emerald-500 rounded-full" title="Connected"></span>
           ) : (
-            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" title="Connecting..."></span>
+            <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" title="Connecting..."></span>
           )}
         </h3>
         <Button variant="ghost" size="icon" onClick={onToggle} className="h-8 w-8">
