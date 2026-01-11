@@ -975,13 +975,81 @@ export default function GamePage() {
         default:
           break;
       }
+      };
     };
+    
+    connectWebSocket();
 
     return () => {
-      ws.close();
+      clearTimeout(reconnectTimeout);
+      if (wsRef.current) {
+        wsRef.current.onclose = null; // Prevent reconnect on unmount
+        wsRef.current.close();
+      }
       cleanupVoice();
     };
-  }, [user, roomCode, navigate, soundEnabled, displayTrick.length, trickResult, voiceEnabled]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, roomCode, navigate, soundEnabled, trickResult, voiceEnabled, cardRequestDialog.open, spectatorLocked, watchingPlayerId]);
+
+  // Turn timer effect - auto play highest card after 12 seconds
+  useEffect(() => {
+    if (turnTimerRef.current) {
+      clearInterval(turnTimerRef.current);
+    }
+    
+    if (gameState?.current_player === user?.id && gameState?.status === 'playing' && turnTimer > 0) {
+      turnTimerRef.current = setInterval(() => {
+        setTurnTimer(prev => {
+          if (prev <= 1) {
+            // Auto-play highest card
+            autoPlayCard();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (turnTimerRef.current) {
+        clearInterval(turnTimerRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState?.current_player, gameState?.status, user?.id]);
+
+  // Auto-play highest valid card
+  const autoPlayCard = async () => {
+    if (!gameState?.your_hand || gameState.your_hand.length === 0) return;
+    
+    const hand = gameState.your_hand;
+    const leadSuit = gameState.lead_suit;
+    let cardToPlay;
+    
+    if (leadSuit) {
+      // Must follow suit if possible
+      const suitCards = hand.filter(c => c.suit === leadSuit);
+      if (suitCards.length > 0) {
+        // Play highest of the suit
+        cardToPlay = suitCards.reduce((a, b) => a.value > b.value ? a : b);
+      } else {
+        // No suit cards - play highest card
+        cardToPlay = hand.reduce((a, b) => a.value > b.value ? a : b);
+      }
+    } else {
+      // Leading - play highest card
+      cardToPlay = hand.reduce((a, b) => a.value > b.value ? a : b);
+    }
+    
+    if (cardToPlay) {
+      try {
+        await axios.post(`${API}/game/${roomCode}/play`, { card: cardToPlay });
+        toast.info('⏱️ Time up! Auto-played card.');
+      } catch (error) {
+        console.error('Auto-play error:', error);
+      }
+    }
+  };
 
   // Voice chat functions
   const handleVoiceSignal = (data) => {
