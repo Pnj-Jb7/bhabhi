@@ -1583,7 +1583,6 @@ export default function GamePage() {
             const hasPower = trickResult?.picker === player.id || trickResult?.power_player === player.id;
             const isLastCard = lastCardInTrick?.player_id === player.id;
             const escapePos = escapePositions[player.id] || (isFinished ? gameState.finished_players.indexOf(player.id) + 1 : null);
-            const reaction = playerReactions[player.id]?.text;
 
             return (
               <PlayerSlot
