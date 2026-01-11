@@ -601,6 +601,9 @@ export default function GamePage() {
   const [showTochooAlert, setShowTochooAlert] = useState(false);
   const [lastPlayedCardId, setLastPlayedCardId] = useState(null);
   
+  // Keep track of ALL cards played in the trick (don't clear them)
+  const [allPlayedCards, setAllPlayedCards] = useState([]);
+  
   // Card request dialog (when someone requests YOUR cards - you have ≤3)
   const [cardRequestDialog, setCardRequestDialog] = useState({ open: false, requesterId: null, requesterName: '' });
   
@@ -611,6 +614,9 @@ export default function GamePage() {
   const [spectatorLocked, setSpectatorLocked] = useState(false); // Once chosen, cannot change
   const [escapePositions, setEscapePositions] = useState({}); // Track escape order: {playerId: position}
   
+  // Emoji reactions - display under player name
+  const [playerReactions, setPlayerReactions] = useState({}); // {playerId: {emoji, text, timestamp}}
+  
   // Text chat
   const [chatMessages, setChatMessages] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
@@ -618,8 +624,8 @@ export default function GamePage() {
   // WebSocket connection state
   const [wsConnected, setWsConnected] = useState(false);
   
-  // Turn timer
-  const [turnTimer, setTurnTimer] = useState(null);
+  // Turn timer - 12 seconds
+  const [turnTimer, setTurnTimer] = useState(12);
   const turnTimerRef = useRef(null);
   
   // Voice chat
@@ -627,7 +633,7 @@ export default function GamePage() {
   const [isMuted, setIsMuted] = useState(true);
   const [connectedPeers, setConnectedPeers] = useState({});
   const [voiceUsers, setVoiceUsers] = useState([]); // Users in voice chat
-  const [speakingUsers, setSpeakingUsers] = useState({}); // Track who is speaking: {oderId: true/false}
+  const [speakingUsers, setSpeakingUsers] = useState({}); // Track who is speaking
   
   const wsRef = useRef(null);
   const prevCurrentPlayer = useRef(null);
@@ -638,6 +644,10 @@ export default function GamePage() {
   const audioElementsRef = useRef({});
   const audioAnalyserRef = useRef(null);
   const speakingIntervalRef = useRef(null);
+  
+  // Quick emojis and phrases for reactions
+  const QUICK_EMOJIS = ['🤣', '🥳', '🤬', '👍', '😭', '❤️', '💩'];
+  const QUICK_PHRASES = ['Hahahaha', 'Aa chak fer', 'Leh swaad', 'Ku***', 'BC', 'Damn It', 'Marr ja'];
 
   const fetchGameState = useCallback(async () => {
     try {
