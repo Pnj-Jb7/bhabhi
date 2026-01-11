@@ -807,15 +807,16 @@ export default function GamePage() {
             if (data.current_player === user?.id && prevCurrentPlayer.current !== user?.id) {
               sounds.yourTurn();
             }
-            // Game finished - play sounds
-            if (data.status === 'finished' && data.loser) {
-              if (data.loser === user?.id) {
-                sounds.lose();
-              } else {
-                // Winner - play dhol twice!
-                sounds.escape();
-                setTimeout(() => sounds.escape(), 900);
-              }
+            // Game finished - play dhol for winners
+            if (data.status === 'finished' && data.loser && gameState?.status !== 'finished') {
+              setTimeout(() => {
+                if (data.loser === user?.id) {
+                  sounds.lose();
+                } else {
+                  // Winner - play dhol!
+                  sounds.escape();
+                }
+              }, 500);
             }
           }
           prevCurrentPlayer.current = data.current_player;
