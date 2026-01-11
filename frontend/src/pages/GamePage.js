@@ -1166,6 +1166,35 @@ export default function GamePage() {
       setVoiceEnabled(true);
       setIsMuted(false);
       
+      // Setup audio analyser to detect when user is speaking
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      const microphone = audioContext.createMediaStreamSource(stream);
+      microphone.connect(analyser);
+      analyser.fftSize = 512;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      audioAnalyserRef.current = { analyser, dataArray };
+      
+      // Check speaking status periodically
+      speakingIntervalRef.current = setInterval(() => {
+        if (audioAnalyserRef.current && !isMuted) {
+          const { analyser, dataArray } = audioAnalyserRef.current;
+          analyser.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((a, b) => a + b, 0) / bufferLength;
+          const isSpeaking = average > 30; // Threshold for speech detection
+          
+          // Broadcast speaking status
+          if (wsRef.current?.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify({ 
+              type: 'voice_status',
+              is_speaking: isSpeaking,
+              is_muted: isMuted
+            }));
+          }
+        }
+      }, 100);
+      
       // Notify server we joined voice
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ 
@@ -1174,7 +1203,7 @@ export default function GamePage() {
         }));
       }
       
-      toast.success('Voice chat enabled! Others can hear you now.');
+      toast.success('🎤 Voice chat ON! Others can hear you now.');
     } catch (error) {
       console.error('Microphone error:', error);
       toast.error('Could not access microphone. Check permissions.');
