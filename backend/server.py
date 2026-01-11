@@ -812,20 +812,14 @@ async def start_game(room_code: str, user: dict = Depends(get_current_user)):
     deck = create_deck()
     hands = deal_cards(deck, len(room["players"]))
     
-    # Shuffle player positions randomly
-    shuffled_players = room["players"].copy()
-    random.shuffle(shuffled_players)
-    
-    # Find who has Ace of Spades
-    starter_index = find_ace_of_spades_holder(hands)
-    
+    # Players play in sequence (order they joined) - NO randomization
     player_hands = {}
     player_order = []
-    for i, player in enumerate(shuffled_players):
+    for i, player in enumerate(room["players"]):
         player_hands[player["id"]] = hands[i]
         player_order.append(player["id"])
     
-    # Recompute starter based on shuffled order
+    # Find who has Ace of Spades to start
     starter_index = 0
     for i, pid in enumerate(player_order):
         hand = player_hands[pid]
