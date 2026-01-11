@@ -1399,6 +1399,14 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, user_id: str)
                     "message": data["message"],
                     "timestamp": datetime.now(timezone.utc).isoformat()
                 })
+            elif data["type"] == "reaction":
+                # Emoji/phrase reactions - broadcast to all in room
+                await manager.broadcast_to_room(room_code.upper(), {
+                    "type": "reaction",
+                    "user_id": user_id,
+                    "reaction": data.get("reaction", ""),
+                    "is_emoji": data.get("is_emoji", True)
+                })
                 
     except WebSocketDisconnect:
         manager.disconnect(user_id)
