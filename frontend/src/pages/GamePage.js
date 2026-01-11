@@ -571,7 +571,8 @@ export default function GamePage() {
   // Spectator mode - choose ONE player to watch
   const [allHands, setAllHands] = useState(null);
   const [spectatorChoiceDialog, setSpectatorChoiceDialog] = useState(false);
-  const [watchingPlayerId, setWatchingPlayerId] = useState(null); // Once set, cannot change
+  const [watchingPlayerId, setWatchingPlayerId] = useState(null);
+  const [escapePositions, setEscapePositions] = useState({}); // Track escape order: {playerId: position}
   
   // Text chat
   const [chatMessages, setChatMessages] = useState([]);
