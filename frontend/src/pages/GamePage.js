@@ -409,45 +409,27 @@ function PlayerSlot({
   position,
   isLastCardPlayed,
   isMe = false,
-  escapePosition = null,
-  reaction = null
+  escapePosition = null
 }) {
   const isBot = player?.is_bot || player?.id?.startsWith('bot_');
   
+  // Spread out positions more
   const positionStyles = {
-    'top': 'top-16 left-1/2 -translate-x-1/2',
-    'top-left': 'top-16 left-[20%]',
-    'top-right': 'top-16 right-[20%]',
-    'left': 'left-4 top-1/2 -translate-y-1/2',
-    'right': 'right-4 top-1/2 -translate-y-1/2',
+    'top': 'top-20 left-1/2 -translate-x-1/2',
+    'top-left': 'top-20 left-[10%]',
+    'top-right': 'top-20 right-[10%]',
+    'left': 'left-2 top-[40%] -translate-y-1/2',
+    'right': 'right-2 top-[40%] -translate-y-1/2',
   };
   
   const getPositionBadge = (pos) => {
     if (!pos) return null;
-    const badges = {
-      1: '🥇',
-      2: '🥈', 
-      3: '🥉'
-    };
+    const badges = {1: '🥇', 2: '🥈', 3: '🥉'};
     return badges[pos] || `#${pos}`;
   };
 
   return (
     <div className={`absolute ${positionStyles[position]} z-10`}>
-      {/* Reaction bubble above player */}
-      <AnimatePresence>
-        {reaction && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0 }}
-            className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-3 py-1 rounded-full shadow-lg text-sm font-bold whitespace-nowrap z-20"
-          >
-            {reaction}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
       {/* Show EITHER the played card OR the avatar - card replaces avatar */}
       <AnimatePresence mode="wait">
         {playedCard ? (
@@ -464,11 +446,11 @@ function PlayerSlot({
               highlightColor={isTochoo ? 'red' : 'yellow'}
               isLastPlayed={isLastCardPlayed}
             />
-            {/* Player name below card */}
-            <div className={`mt-2 px-3 py-1 rounded-full text-xs font-bold ${
+            {/* Player name below card - smaller */}
+            <div className={`mt-1 px-2 py-0.5 rounded-full text-xs font-bold ${
               isCurrentPlayer ? 'bg-yellow-500 text-black' : 'bg-black/70 text-white'
             }`}>
-              {player.username} • {cardCount}
+              {player.username?.slice(0, 6)}
             </div>
           </motion.div>
         ) : (
