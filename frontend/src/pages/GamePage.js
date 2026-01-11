@@ -1220,6 +1220,10 @@ export default function GamePage() {
   };
 
   const cleanupVoice = () => {
+    if (speakingIntervalRef.current) {
+      clearInterval(speakingIntervalRef.current);
+      speakingIntervalRef.current = null;
+    }
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(track => track.stop());
       localStreamRef.current = null;
@@ -1227,10 +1231,12 @@ export default function GamePage() {
     Object.keys(peersRef.current).forEach(peerId => {
       destroyPeer(peerId);
     });
+    audioAnalyserRef.current = null;
     setVoiceEnabled(false);
     setIsMuted(true);
     setConnectedPeers({});
     setVoiceUsers([]);
+    setSpeakingUsers({});
   };
 
   const toggleMute = () => {
@@ -1239,6 +1245,15 @@ export default function GamePage() {
       if (audioTrack) {
         audioTrack.enabled = isMuted;
         setIsMuted(!isMuted);
+        
+        // Notify others of mute status
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send(JSON.stringify({ 
+            type: 'voice_status',
+            is_speaking: false,
+            is_muted: !isMuted
+          }));
+        }
       }
     }
   };
@@ -1247,7 +1262,7 @@ export default function GamePage() {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: 'chat_message', message }));
     } else {
-      toast.error('Chat not connected');
+      toast.error('Chat reconnecting...');
     }
   };
 
@@ -1258,6 +1273,11 @@ export default function GamePage() {
     }
     if (gameState?.current_player !== user?.id) {
       toast.error('Not your turn!');
+      return;
+    }
+    
+    // Reset timer when playing
+    setTurnTimer(0);
       return;
     }
 
