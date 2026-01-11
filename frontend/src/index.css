@@ -64,6 +64,15 @@ h1, h2, h3, h4, h5, h6, .font-display {
     @apply backdrop-blur-xl bg-black/40 border border-white/10 shadow-2xl;
 }
 
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
 /* Neon glow effects */
 .glow-primary {
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
