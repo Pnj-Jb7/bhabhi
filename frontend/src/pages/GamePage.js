@@ -973,12 +973,33 @@ export default function GamePage() {
             }));
           }
           break;
+        
+        case 'reaction':
+          // Someone sent an emoji/phrase reaction - show under their name
+          if (data.user_id !== user?.id) {
+            setPlayerReactions(prev => ({
+              ...prev,
+              [data.user_id]: { text: data.reaction, timestamp: Date.now() }
+            }));
+            // Clear after 3 seconds
+            setTimeout(() => {
+              setPlayerReactions(prev => {
+                const newReactions = { ...prev };
+                if (newReactions[data.user_id]?.timestamp <= Date.now() - 2900) {
+                  delete newReactions[data.user_id];
+                }
+                return newReactions;
+              });
+            }, 3000);
+          }
+          break;
           
         case 'game_restarted':
           navigate(`/room/${roomCode}`);
           setWatchingPlayerId(null);
           setSpectatorLocked(false);
           setSpectatorChoiceDialog(false);
+          setAllPlayedCards([]);
           cleanupVoice();
           break;
           
