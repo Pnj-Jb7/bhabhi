@@ -1680,6 +1680,15 @@ export default function GamePage() {
                 🎤 {Object.keys(connectedPeers).length} connected
               </span>
             )}
+            {/* Show who's speaking */}
+            {voiceUsers.filter(id => speakingUsers[id] && id !== user?.id).map(id => {
+              const speakingPlayer = (gameState?.players || room?.players || []).find(p => p.id === id);
+              return speakingPlayer ? (
+                <span key={id} className="text-xs bg-emerald-500/30 px-2 py-1 rounded-full animate-pulse">
+                  🗣️ {speakingPlayer.username}
+                </span>
+              ) : null;
+            })}
           </>
         )}
         
@@ -1687,7 +1696,8 @@ export default function GamePage() {
           variant="ghost"
           size="icon"
           onClick={() => setSoundEnabled(!soundEnabled)}
-          className={`rounded-full ${soundEnabled ? 'text-emerald-400' : 'text-gray-500'}`}
+          className={`rounded-full ${soundEnabled ? 'text-emerald-400 bg-emerald-500/20' : 'text-red-400 bg-red-500/20'}`}
+          title={soundEnabled ? 'Sound ON' : 'Sound OFF'}
         >
           {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
         </Button>
@@ -1701,12 +1711,19 @@ export default function GamePage() {
         </Button>
       </div>
 
-      {/* Turn Indicator */}
+      {/* Turn Indicator with Timer */}
       {!isGameOver && !hasEscaped && (
         <div className="absolute top-4 left-4 z-40">
           <div className={`bg-black/80 px-5 py-3 rounded-full backdrop-blur-sm ${isMyTurn ? 'ring-2 ring-yellow-400' : ''}`}>
             {isMyTurn ? (
-              <span className="text-yellow-400 font-bold text-lg animate-pulse">🎴 YOUR TURN!</span>
+              <div className="flex items-center gap-3">
+                <span className="text-yellow-400 font-bold text-lg animate-pulse">🎴 YOUR TURN!</span>
+                {turnTimer > 0 && (
+                  <span className={`font-mono font-bold text-lg ${turnTimer <= 5 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+                    {turnTimer}s
+                  </span>
+                )}
+              </div>
             ) : (
               <span className="text-gray-300">
                 ⏳ {(gameState.players || room.players)?.find(p => p.id === gameState.current_player)?.username}'s turn
