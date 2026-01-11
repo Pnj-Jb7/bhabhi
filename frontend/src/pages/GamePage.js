@@ -1601,10 +1601,32 @@ export default function GamePage() {
                 )}
               </h2>
               {loserPlayer && gameState.loser !== user?.id && (
-                <p className="text-xl text-gray-400 mb-8">
+                <p className="text-xl text-gray-400 mb-4">
                   <span className="text-rose-400 font-bold">{loserPlayer.username}</span> is the Bhabhi!
                 </p>
               )}
+              
+              {/* Show escape positions/rankings */}
+              <div className="mb-6 text-left bg-zinc-800 rounded-xl p-4">
+                <p className="text-sm text-gray-400 mb-2">Final Rankings:</p>
+                {(gameState.finished_players || []).map((pid, index) => {
+                  const player = (gameState.players || room.players)?.find(p => p.id === pid);
+                  const position = index + 1;
+                  const positionText = position === 1 ? '🥇 1st' : position === 2 ? '🥈 2nd' : position === 3 ? '🥉 3rd' : `${position}th`;
+                  return (
+                    <div key={pid} className="flex items-center gap-2 py-1">
+                      <span className="text-lg">{positionText}</span>
+                      <span className={`font-bold ${pid === user?.id ? 'text-emerald-400' : 'text-white'}`}>
+                        {player?.username} {pid === user?.id && '(You)'}
+                      </span>
+                    </div>
+                  );
+                })}
+                <div className="flex items-center gap-2 py-1 border-t border-zinc-700 mt-2 pt-2">
+                  <span className="text-lg">💩 Last</span>
+                  <span className="text-rose-400 font-bold">{loserPlayer?.username} (Bhabhi)</span>
+                </div>
+              </div>
               
               <div className="flex flex-col gap-3">
                 {isHost && (
