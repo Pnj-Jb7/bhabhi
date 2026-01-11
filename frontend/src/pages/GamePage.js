@@ -1412,12 +1412,14 @@ export default function GamePage() {
 
   return (
     <div className="game-page h-screen w-screen overflow-hidden relative bg-zinc-950" data-testid="game-page">
-      {/* Spectator Banner with button to choose/change player */}
+      {/* Spectator Banner - locked choice, no change button */}
       {hasEscaped && !isGameOver && (
         <div className="absolute top-0 left-0 right-0 bg-emerald-600 text-white text-center py-2 z-50 font-bold flex items-center justify-center gap-4 flex-wrap">
           <span>🎉 You escaped!</span>
-          {watchingPlayerId ? (
-            <span>👁️ Watching: {watchingPlayer?.username}</span>
+          {watchingPlayerId && watchingPlayer ? (
+            <span>👁️ Watching: {watchingPlayer.username}'s cards</span>
+          ) : spectatorLocked ? (
+            <span className="text-yellow-200">Your spectate target escaped. No cards to see.</span>
           ) : (
             <Button 
               size="sm" 
@@ -1425,19 +1427,6 @@ export default function GamePage() {
               className="bg-white text-emerald-700 hover:bg-emerald-100 font-bold"
             >
               👁️ Choose Player to Watch
-            </Button>
-          )}
-          {watchingPlayerId && (
-            <Button 
-              size="sm" 
-              variant="outline"
-              onClick={() => {
-                setWatchingPlayerId(null);
-                setSpectatorChoiceDialog(true);
-              }}
-              className="border-white text-white hover:bg-emerald-500"
-            >
-              Change
             </Button>
           )}
         </div>
