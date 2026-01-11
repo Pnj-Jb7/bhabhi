@@ -397,7 +397,8 @@ function PlayerSlot({
   hasPower,
   position,
   isLastCardPlayed,
-  isMe = false
+  isMe = false,
+  escapePosition = null
 }) {
   const isBot = player?.is_bot || player?.id?.startsWith('bot_');
   
@@ -407,6 +408,16 @@ function PlayerSlot({
     'top-right': 'top-4 right-[15%]',
     'left': 'left-4 top-1/2 -translate-y-1/2',
     'right': 'right-4 top-1/2 -translate-y-1/2',
+  };
+  
+  const getPositionBadge = (pos) => {
+    if (!pos) return null;
+    const badges = {
+      1: '🥇',
+      2: '🥈', 
+      3: '🥉'
+    };
+    return badges[pos] || `#${pos}`;
   };
 
   return (
@@ -443,15 +454,20 @@ function PlayerSlot({
             className={`
               flex flex-col items-center p-3 rounded-2xl transition-all backdrop-blur-sm
               ${isCurrentPlayer ? 'bg-yellow-500/40 ring-3 ring-yellow-400 shadow-lg shadow-yellow-500/30' : 'bg-black/50'}
-              ${isFinished ? 'opacity-50' : ''}
+              ${isFinished ? 'bg-emerald-900/50 ring-2 ring-emerald-500' : ''}
             `}
           >
             <div className={`
-              w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-2xl font-bold border-3
+              w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-2xl font-bold border-3 relative
               ${isBot ? 'bg-gradient-to-br from-cyan-400 to-blue-600 border-cyan-300' : 'bg-gradient-to-br from-violet-500 to-pink-500 border-white/40'}
               ${isCurrentPlayer ? 'ring-3 ring-yellow-400 ring-offset-2 ring-offset-transparent animate-bounce' : ''}
+              ${isFinished ? 'bg-emerald-600 border-emerald-400' : ''}
             `}>
               {isFinished ? '✓' : isBot ? '🤖' : player.username?.[0]?.toUpperCase()}
+              {/* Position badge */}
+              {escapePosition && (
+                <span className="absolute -top-2 -right-2 text-lg">{getPositionBadge(escapePosition)}</span>
+              )}
             </div>
             
             <div className="text-center mt-2">
@@ -459,7 +475,7 @@ function PlayerSlot({
                 {isMe ? 'You' : player.username}
               </p>
               <p className={`text-xs font-medium ${isFinished ? 'text-emerald-400' : 'text-gray-300'}`}>
-                {isFinished ? '🎉 Escaped!' : `🃏 ${cardCount} cards`}
+                {isFinished ? `🎉 ${escapePosition ? getPositionBadge(escapePosition) + ' ' : ''}Escaped!` : `🃏 ${cardCount} cards`}
               </p>
             </div>
           </motion.div>
