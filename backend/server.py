@@ -1322,6 +1322,51 @@ async def offer_cards_to_player(room_code: str, data: TakeCardsRequest, user: di
     
     return {"message": "Cards offered and accepted"}
 
+@api_router.post("/game/{room_code}/forfeit")
+async def forfeit_game(room_code: str, user: dict = Depends(get_current_user)):
+    """Forfeit the game - player becomes the loser immediately"""
+    game = await db.games.find_one({"room_code": room_code.upper()}, {"_id": 0})
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    
+    if game["status"] != "playing":
+        raise HTTPException(status_code=400, detail="Game is not in progress")
+    
+    if user["id"] in game.get("finished_players", []):
+        raise HTTPException(status_code=400, detail="You have already escaped")
+    
+    # Set this player as the loser
+    game["loser"] = user["id"]
+    game["status"] = "finished"
+    
+    # All other active players are winners
+    active_players = [pid for pid in game["player_order"] if pid not in game["finished_players"] and pid != user["id"]]
+    game["finished_players"].extend(active_players)
+    
+    # Update stats
+    for pid in game["player_order"]:
+        if not pid.startswith("bot_"):
+            await db.users.update_one({"id": pid}, {"$inc": {"games_played": 1}})
+    for pid in game["finished_players"]:
+        if not pid.startswith("bot_"):
+            await db.users.update_one({"id": pid}, {"$inc": {"games_won": 1}})
+    
+    await db.games.update_one({"room_code": room_code.upper()}, {"$set": game})
+    await db.rooms.update_one({"code": room_code.upper()}, {"$set": {"status": "finished"}})
+    
+    room = await db.rooms.find_one({"code": room_code.upper()}, {"_id": 0})
+    
+    # Broadcast game over
+    await manager.broadcast_to_room(room_code.upper(), {
+        "type": "game_update",
+        "status": "finished",
+        "loser": user["id"],
+        "finished_players": game["finished_players"],
+        "players": room["players"] if room else []
+    })
+    
+    return {"message": "You forfeited. Game over."}
+
 @api_router.post("/game/{room_code}/restart")
 async def restart_game(room_code: str, user: dict = Depends(get_current_user)):
     room = await db.rooms.find_one({"code": room_code.upper()}, {"_id": 0})
