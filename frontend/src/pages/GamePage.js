@@ -1303,6 +1303,7 @@ export default function GamePage() {
             const isTochoo = trickResult?.tochoo_by === player.id;
             const hasPower = trickResult?.picker === player.id || trickResult?.power_player === player.id;
             const isLastCard = lastCardInTrick?.player_id === player.id;
+            const escapePos = escapePositions[player.id] || (isFinished ? gameState.finished_players.indexOf(player.id) + 1 : null);
 
             return (
               <PlayerSlot
@@ -1316,6 +1317,7 @@ export default function GamePage() {
                 hasPower={hasPower}
                 position={position}
                 isLastCardPlayed={isLastCard && lastPlayedCardId === player.id}
+                escapePosition={escapePos}
               />
             );
           })}
