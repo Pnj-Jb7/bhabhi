@@ -803,17 +803,20 @@ export default function GamePage() {
           }
           prevCurrentPlayer.current = data.current_player;
           
-          // Update display
+          // Update display with DELAY for completed tricks so players can see all cards
           if (completedTrick.length > 0) {
+            // Show completed trick first
             setDisplayTrick(completedTrick);
             setTrickResult(data.last_trick_result);
+            // Clear trick after 2.5 seconds delay so players can see who played what
+            setTimeout(() => {
+              setDisplayTrick([]);
+            }, 2500);
           } else if (currentTrick.length > 0) {
             setDisplayTrick(currentTrick);
             setTrickResult(null);
-          } else {
-            setDisplayTrick([]);
-            setTrickResult(data.last_trick_result);
           }
+          // Don't clear immediately - let the delay handle it
           
           setGameState(prev => ({
             ...prev,
