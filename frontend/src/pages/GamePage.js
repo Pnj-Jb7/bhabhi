@@ -1675,6 +1675,34 @@ export default function GamePage() {
             )}
           </div>
           
+          {/* Quick Emoji/Phrase Reactions */}
+          <div className="flex flex-wrap justify-center gap-1 mb-2">
+            {QUICK_EMOJIS.map(emoji => (
+              <button
+                key={emoji}
+                onClick={() => sendReaction(emoji, true)}
+                className="text-xl hover:scale-125 transition-transform bg-black/30 rounded-full w-8 h-8 flex items-center justify-center"
+              >
+                {emoji}
+              </button>
+            ))}
+            {QUICK_PHRASES.map(phrase => (
+              <button
+                key={phrase}
+                onClick={() => sendReaction(phrase, false)}
+                className="text-xs px-2 py-1 bg-zinc-700 hover:bg-zinc-600 rounded-full text-white"
+              >
+                {phrase}
+              </button>
+            ))}
+            {/* My reaction display */}
+            {myReaction && (
+              <span className="bg-yellow-500 text-black px-2 py-1 rounded-full text-sm font-bold animate-bounce">
+                {myReaction}
+              </span>
+            )}
+          </div>
+          
           {/* Cards - Scrollable for many cards */}
           <div className="flex justify-center items-end max-w-full overflow-x-auto pb-3 px-2 scrollbar-hide">
             <div className="flex" style={{ minWidth: myHand.length > 15 ? `${myHand.length * 25}px` : 'auto' }}>
