@@ -735,8 +735,21 @@ export default function GamePage() {
             last_trick_result: data.last_trick_result
           }));
           
-          // Check if WE just escaped - show spectator choice dialog
+          // Track escape positions
           const newFinishedPlayers = data.finished_players || [];
+          if (newFinishedPlayers.length > 0) {
+            setEscapePositions(prev => {
+              const newPositions = { ...prev };
+              newFinishedPlayers.forEach(pid => {
+                if (!newPositions[pid]) {
+                  newPositions[pid] = Object.keys(newPositions).length + 1;
+                }
+              });
+              return newPositions;
+            });
+          }
+          
+          // Check if WE just escaped - show spectator choice dialog
           const justEscaped = newFinishedPlayers.includes(user?.id) && !prevFinishedPlayers.current.includes(user?.id);
           if (justEscaped && !watchingPlayerId) {
             setSpectatorChoiceDialog(true);
@@ -745,13 +758,19 @@ export default function GamePage() {
               sounds.escape();
               setTimeout(() => sounds.escape(), 900);
             }
-            toast.success('🎉 You escaped! Choose a player to spectate!', { duration: 5000 });
+            const myPosition = newFinishedPlayers.indexOf(user?.id) + 1;
+            toast.success(`🎉 You escaped! Position: ${myPosition}${myPosition === 1 ? 'st' : myPosition === 2 ? 'nd' : myPosition === 3 ? 'rd' : 'th'}!`, { duration: 5000 });
           }
           
           // Check if ANYONE else just escaped (by playing last card)
           const newlyEscaped = newFinishedPlayers.filter(p => !prevFinishedPlayers.current.includes(p) && p !== user?.id);
-          if (newlyEscaped.length > 0 && soundEnabled) {
-            sounds.escape(); // Play dhol for other player's escape
+          if (newlyEscaped.length > 0) {
+            if (soundEnabled) sounds.escape(); // Play dhol for other player's escape
+            const escapedPlayer = data.players?.find(p => newlyEscaped.includes(p.id));
+            const position = newFinishedPlayers.indexOf(newlyEscaped[0]) + 1;
+            if (escapedPlayer) {
+              toast.info(`${escapedPlayer.username} escaped! Position: ${position}${position === 1 ? 'st' : position === 2 ? 'nd' : position === 3 ? 'rd' : 'th'}`, { duration: 3000 });
+            }
           }
           prevFinishedPlayers.current = newFinishedPlayers;
           
