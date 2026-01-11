@@ -600,6 +600,25 @@ export default function GamePage() {
       ]);
       setGameState(gameRes.data);
       setRoom(roomRes.data.room);
+      
+      // Update allHands for spectators
+      if (gameRes.data.all_hands) {
+        setAllHands(gameRes.data.all_hands);
+      }
+      
+      // Track escape positions
+      const finishedPlayers = gameRes.data.finished_players || [];
+      if (finishedPlayers.length > 0) {
+        setEscapePositions(prev => {
+          const newPositions = { ...prev };
+          finishedPlayers.forEach((pid, index) => {
+            if (!newPositions[pid]) {
+              newPositions[pid] = Object.keys(newPositions).length + 1;
+            }
+          });
+          return newPositions;
+        });
+      }
     } catch (error) {
       if (error.response?.status === 404) {
         navigate(`/room/${roomCode}`);
