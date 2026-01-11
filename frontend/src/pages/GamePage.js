@@ -1649,18 +1649,22 @@ export default function GamePage() {
             variant="ghost"
             size="icon"
             onClick={startVoiceChat}
-            className="rounded-full text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10"
+            className="rounded-full text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 border border-gray-600"
             title="Start Voice Chat"
           >
             <Phone className="w-5 h-5" />
           </Button>
         ) : (
           <>
+            <div className="flex items-center gap-1 bg-emerald-600/30 rounded-full px-2 py-1 border border-emerald-500">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+              <span className="text-xs text-emerald-400">LIVE</span>
+            </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleMute}
-              className={`rounded-full ${isMuted ? 'text-red-400 bg-red-500/20' : 'text-emerald-400 bg-emerald-500/20'}`}
+              className={`rounded-full ${isMuted ? 'text-red-400 bg-red-500/30 border border-red-500' : 'text-emerald-400 bg-emerald-500/30 border border-emerald-500'}`}
               title={isMuted ? 'Unmute' : 'Mute'}
             >
               {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
@@ -1669,22 +1673,22 @@ export default function GamePage() {
               variant="ghost"
               size="icon"
               onClick={stopVoiceChat}
-              className="rounded-full text-red-400 hover:bg-red-500/10"
+              className="rounded-full text-red-400 bg-red-500/20 border border-red-500 hover:bg-red-500/30"
               title="End Voice Chat"
             >
               <PhoneOff className="w-5 h-5" />
             </Button>
             {/* Voice chat indicator */}
-            {Object.keys(connectedPeers).length > 0 && (
+            {voiceUsers.length > 1 && (
               <span className="text-xs text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded-full">
-                🎤 {Object.keys(connectedPeers).length} connected
+                🎤 {voiceUsers.length} in call
               </span>
             )}
             {/* Show who's speaking */}
             {voiceUsers.filter(id => speakingUsers[id] && id !== user?.id).map(id => {
               const speakingPlayer = (gameState?.players || room?.players || []).find(p => p.id === id);
               return speakingPlayer ? (
-                <span key={id} className="text-xs bg-emerald-500/30 px-2 py-1 rounded-full animate-pulse">
+                <span key={id} className="text-xs bg-yellow-500/30 text-yellow-300 px-2 py-1 rounded-full animate-pulse border border-yellow-500">
                   🗣️ {speakingPlayer.username}
                 </span>
               ) : null;
