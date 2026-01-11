@@ -1149,9 +1149,20 @@ async def request_cards_from_player(room_code: str, data: TakeCardsRequest, user
         
         return {"message": f"{bot_name} accepted and gave you their cards!"}
     else:
-        # Human player - send them the request prompt
+        # Human player - send them the request prompt via broadcast to ensure delivery
+        # First try direct message
         await manager.send_personal(target_id, {
             "type": "card_request",
+            "requester_id": user["id"],
+            "requester_name": requester_name,
+            "your_cards": len(target_hand),
+            "target_id": target_id  # Include target so frontend can filter
+        })
+        
+        # Also broadcast to room as backup (frontend will filter by target_id)
+        await manager.broadcast_to_room(room_code.upper(), {
+            "type": "card_request_broadcast",
+            "target_id": target_id,
             "requester_id": user["id"],
             "requester_name": requester_name,
             "your_cards": len(target_hand)
