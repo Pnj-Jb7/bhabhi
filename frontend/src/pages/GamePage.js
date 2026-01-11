@@ -686,12 +686,40 @@ export default function GamePage() {
     return () => clearInterval(interval);
   }, [gameState?.status, fetchGameState]);
 
-  // WebSocket
+  // WebSocket connection with auto-reconnect
   useEffect(() => {
     if (!user || !roomCode) return;
+    
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    let reconnectTimeout;
 
-    const ws = new WebSocket(`${WS_URL}/ws/${roomCode}/${user.id}`);
-    wsRef.current = ws;
+    const connectWebSocket = () => {
+      const ws = new WebSocket(`${WS_URL}/ws/${roomCode}/${user.id}`);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+        setWsConnected(true);
+        reconnectAttempts = 0;
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket disconnected');
+        setWsConnected(false);
+        
+        // Auto-reconnect
+        if (reconnectAttempts < maxReconnectAttempts) {
+          reconnectAttempts++;
+          const delay = Math.min(1000 * reconnectAttempts, 5000);
+          console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttempts})`);
+          reconnectTimeout = setTimeout(connectWebSocket, delay);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -714,6 +742,7 @@ export default function GamePage() {
           setDisplayTrick([]);
           setTrickResult(null);
           setLastPlayedCardId(null);
+          setTurnTimer(12); // Start timer
           break;
           
         case 'game_update':
@@ -733,6 +762,11 @@ export default function GamePage() {
           // Update all_hands if we're a spectator
           if (data.all_hands) {
             setAllHands(data.all_hands);
+          }
+          
+          // Reset timer when turn changes
+          if (data.current_player === user?.id) {
+            setTurnTimer(12);
           }
           
           // Sounds
