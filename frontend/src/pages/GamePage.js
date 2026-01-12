@@ -1711,7 +1711,7 @@ export default function GamePage() {
   const myReaction = playerReactions[user?.id]?.text;
 
   return (
-    <div className="game-page h-screen w-screen overflow-hidden relative bg-zinc-950" data-testid="game-page">
+    <div className="game-page min-h-screen w-screen overflow-x-hidden relative bg-zinc-950 flex flex-col" data-testid="game-page" style={{ minHeight: '100dvh' }}>
       {/* Spectator Banner - LEFT side, compact */}
       {hasEscaped && !isGameOver && (
         <div className="absolute top-2 left-2 z-40 bg-emerald-600/90 text-white px-3 py-2 rounded-lg font-bold text-sm max-w-[200px]">
