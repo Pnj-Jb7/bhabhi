@@ -2069,11 +2069,6 @@ export default function GamePage() {
             {isMyTurn ? (
               <div className="flex items-center gap-3">
                 <span className="text-yellow-400 font-bold text-lg animate-pulse">🎴 YOUR TURN!</span>
-                {turnTimer > 0 && (
-                  <span className={`font-mono font-bold text-lg ${turnTimer <= 5 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
-                    {turnTimer}s
-                  </span>
-                )}
               </div>
             ) : (
               <span className="text-gray-300">
