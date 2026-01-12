@@ -1443,12 +1443,14 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, user_id: str)
             data = await websocket.receive_json()
             
             if data["type"] == "voice_join":
-                # User joined voice chat - notify others
+                # User joined voice chat - notify others with their peer_id
                 username = data.get("username", "Someone")
+                peer_id = data.get("peer_id", "")  # Get the PeerJS peer_id
                 await manager.broadcast_to_room(room_code.upper(), {
                     "type": "voice_user_joined",
                     "user_id": user_id,
-                    "username": username
+                    "username": username,
+                    "peer_id": peer_id  # Include peer_id so others can call this user
                 })
             elif data["type"] == "voice_leave":
                 # User left voice chat
