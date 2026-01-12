@@ -1953,27 +1953,30 @@ export default function GamePage() {
           
           {/* Cards - Centered, tight overlap like reference */}
           <div 
-            className="w-full overflow-x-auto pb-safe flex justify-center" 
+            className="w-full overflow-x-auto pb-safe" 
             style={{ 
               WebkitOverflowScrolling: 'touch',
               paddingBottom: 'env(safe-area-inset-bottom, 8px)'
             }}
           >
-            <div className="flex items-end justify-center">
+            <div className="flex items-end px-4" style={{ minWidth: 'max-content', margin: '0 auto', justifyContent: 'center' }}>
               {myHand.map((card, index) => {
                 const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
                 const isSelected = selectedCard?.suit === card.suit && selectedCard?.rank === card.rank;
                 
-                // TIGHT overlap like reference image - only show edge of each card
+                // Calculate overlap to show ~8-10px of each card edge
+                // Card width is 36px on mobile, show 8px = overlap of -28
                 const totalCards = myHand.length;
-                const overlap = totalCards > 25 ? -34 : totalCards > 20 ? -32 : totalCards > 15 ? -30 : totalCards > 10 ? -26 : totalCards > 6 ? -22 : -16;
+                const cardWidth = 36; // mobile
+                const visibleEdge = 8; // pixels of each card visible
+                const overlap = -(cardWidth - visibleEdge);
                 
                 return (
                   <motion.div
                     key={`${card.suit}-${card.rank}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: isSelected ? -25 : 0 }}
-                    transition={{ delay: index * 0.003 }}
+                    transition={{ delay: index * 0.002, duration: 0.15 }}
                     style={{ 
                       marginLeft: index === 0 ? 0 : overlap,
                       zIndex: isSelected ? 100 : index 
