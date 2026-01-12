@@ -1546,14 +1546,13 @@ export default function GamePage() {
     }
   };
   
-  // Call all other voice users
+  // Call all other voice users using their stored peer_ids
   const callAllVoiceUsers = () => {
-    voiceUsers.forEach(userId => {
-      if (userId !== user?.id) {
-        const peerId = getPeerId(userId);
-        if (!callsRef.current[peerId]) {
-          callPeer(peerId);
-        }
+    console.log('📞 Calling all voice users. voicePeerIds:', voicePeerIds);
+    Object.entries(voicePeerIds).forEach(([userId, peerId]) => {
+      if (userId !== user?.id && peerId && !callsRef.current[peerId]) {
+        console.log(`📞 Calling user ${userId} at peer ${peerId}`);
+        callPeer(peerId);
       }
     });
   };
