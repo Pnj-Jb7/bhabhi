@@ -484,6 +484,21 @@ function PlayerSlot({
 }) {
   const isBot = player?.is_bot || player?.id?.startsWith('bot_');
   
+  // Human face emojis for bots - Simran is female, rest are male
+  const getBotAvatar = (name) => {
+    const avatars = {
+      'Simran': '👩',
+      'Anmol': '👨',
+      'Sehaj': '👦',
+      'Jaggi': '👴',
+      'Harpreet': '🧔',
+      'Gurpreet': '👨‍🦱',
+      'Manpreet': '👨‍🦳',
+      'Navjot': '🧑'
+    };
+    return avatars[name] || '👤';
+  };
+  
   // Use corners for better spacing
   const positionStyles = {
     'top': 'top-4 left-1/2 -translate-x-1/2',
@@ -537,12 +552,12 @@ function PlayerSlot({
             `}
           >
             <div className={`
-              w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg font-bold border-2 relative
-              ${isBot ? 'bg-gradient-to-br from-cyan-400 to-blue-600 border-cyan-300' : 'bg-gradient-to-br from-violet-500 to-pink-500 border-white/40'}
+              w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-xl font-bold border-2 relative overflow-hidden
+              ${isBot ? 'bg-gradient-to-br from-amber-200 to-orange-300 border-amber-400' : 'bg-gradient-to-br from-violet-500 to-pink-500 border-white/40'}
               ${isCurrentPlayer ? 'ring-2 ring-yellow-400 animate-pulse' : ''}
               ${isFinished ? 'bg-emerald-600 border-emerald-400' : ''}
             `}>
-              {isFinished ? '✓' : isBot ? '🤖' : player.username?.[0]?.toUpperCase()}
+              {isFinished ? '✓' : isBot ? getBotAvatar(player.username) : player.username?.[0]?.toUpperCase()}
               {/* Position badge */}
               {escapePosition && (
                 <span className="absolute -top-1 -right-1 text-sm">{getPositionBadge(escapePosition)}</span>
