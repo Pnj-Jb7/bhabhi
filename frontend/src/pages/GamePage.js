@@ -1395,10 +1395,11 @@ export default function GamePage() {
       peer.on('open', (id) => {
         console.log('✅ PeerJS connected with ID:', id);
         peerRef.current = peer;
+        setMyPeerId(id);
         setVoiceEnabled(true);
         setIsMuted(false);
         
-        // Notify others via WebSocket
+        // Notify others via WebSocket with our peer_id
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           wsRef.current.send(JSON.stringify({ 
             type: 'voice_join',
@@ -1407,7 +1408,17 @@ export default function GamePage() {
           }));
         }
         
-        toast.success('🎤 Voice chat ON! Click to call other players.');
+        toast.success('🎤 Voice ON! Other players will hear you.');
+        
+        // If there are already other voice users, call them
+        setTimeout(() => {
+          Object.entries(voicePeerIds).forEach(([userId, peerId]) => {
+            if (userId !== user?.id && peerId && !callsRef.current[peerId]) {
+              console.log('📞 Calling existing voice user:', peerId);
+              callPeer(peerId);
+            }
+          });
+        }, 2000);
       });
       
       peer.on('call', handleIncomingCall);
