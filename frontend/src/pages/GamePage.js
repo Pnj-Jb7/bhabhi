@@ -1184,99 +1184,125 @@ export default function GamePage() {
     }
   };
 
-  // Voice chat functions
-  const handleVoiceSignal = (data) => {
-    const { from_user, signal } = data;
-    
-    if (peersRef.current[from_user]) {
-      try {
-        peersRef.current[from_user].signal(signal);
-      } catch (e) {
-        console.error('Error signaling peer:', e);
-      }
-    } else if (localStreamRef.current) {
-      // Create peer for incoming signal
-      createPeer(from_user, false, signal);
-    }
+  // ============ PeerJS Voice Chat Implementation ============
+  
+  // Generate a unique peer ID for this user/room combination
+  const getPeerId = (usrId) => {
+    // Create a clean peer ID (PeerJS only allows alphanumeric, -, _)
+    const cleanRoomCode = roomCode?.replace(/[^a-zA-Z0-9]/g, '') || 'room';
+    const cleanUserId = usrId?.replace(/[^a-zA-Z0-9]/g, '') || 'user';
+    return `bhabhi-${cleanRoomCode}-${cleanUserId}`;
   };
 
-  const createPeer = (peerId, initiator, incomingSignal = null) => {
-    if (peersRef.current[peerId]) {
-      console.log('Peer already exists for:', peerId);
+  // Handle incoming call from another peer
+  const handleIncomingCall = (call) => {
+    console.log('📞 Incoming call from:', call.peer);
+    
+    if (!localStreamRef.current) {
+      console.log('⚠️ No local stream to answer with');
       return;
     }
-
-    console.log('Creating peer for:', peerId, 'initiator:', initiator);
-
-    const peer = new SimplePeer({
-      initiator,
-      trickle: true,
-      stream: localStreamRef.current,
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' },
-        ]
-      }
+    
+    // Answer the call with our stream
+    call.answer(localStreamRef.current);
+    
+    call.on('stream', (remoteStream) => {
+      console.log('🔊 Received audio stream from:', call.peer);
+      playRemoteStream(call.peer, remoteStream);
     });
-
-    peer.on('signal', (signal) => {
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({
-          type: 'voice_signal',
-          target_user: peerId,
-          signal
-        }));
-      }
+    
+    call.on('close', () => {
+      console.log('📵 Call closed:', call.peer);
+      removeRemoteStream(call.peer);
     });
-
-    peer.on('stream', (stream) => {
-      console.log('Received stream from:', peerId);
-      // Create audio element for this peer
-      const audio = new Audio();
-      audio.srcObject = stream;
-      audio.autoplay = true;
-      audio.playsInline = true;
-      audioElementsRef.current[peerId] = audio;
-      
-      // Try to play (may need user interaction)
-      audio.play().catch(e => console.log('Audio autoplay blocked:', e));
-      
-      setConnectedPeers(prev => ({ ...prev, [peerId]: true }));
+    
+    call.on('error', (err) => {
+      console.error('❌ Call error:', call.peer, err);
+      removeRemoteStream(call.peer);
     });
-
-    peer.on('connect', () => {
-      console.log('Peer connected:', peerId);
-      setConnectedPeers(prev => ({ ...prev, [peerId]: true }));
-    });
-
-    peer.on('close', () => {
-      console.log('Peer closed:', peerId);
-      destroyPeer(peerId);
-    });
-
-    peer.on('error', (err) => {
-      console.error('Peer error:', peerId, err);
-      destroyPeer(peerId);
-    });
-
-    peersRef.current[peerId] = peer;
-
-    // If we received an incoming signal, process it
-    if (incomingSignal) {
-      peer.signal(incomingSignal);
-    }
+    
+    callsRef.current[call.peer] = call;
+    setConnectedPeers(prev => ({ ...prev, [call.peer]: true }));
   };
-
-  const destroyPeer = (peerId) => {
-    if (peersRef.current[peerId]) {
-      peersRef.current[peerId].destroy();
-      delete peersRef.current[peerId];
+  
+  // Call another peer
+  const callPeer = (peerId) => {
+    if (!peerRef.current || !localStreamRef.current) {
+      console.log('⚠️ Cannot call - no peer or stream');
+      return;
     }
+    
+    if (callsRef.current[peerId]) {
+      console.log('📞 Already in call with:', peerId);
+      return;
+    }
+    
+    console.log('📞 Calling peer:', peerId);
+    const call = peerRef.current.call(peerId, localStreamRef.current);
+    
+    if (!call) {
+      console.log('⚠️ Failed to create call to:', peerId);
+      return;
+    }
+    
+    call.on('stream', (remoteStream) => {
+      console.log('🔊 Received audio from:', peerId);
+      playRemoteStream(peerId, remoteStream);
+    });
+    
+    call.on('close', () => {
+      console.log('📵 Call ended with:', peerId);
+      removeRemoteStream(peerId);
+    });
+    
+    call.on('error', (err) => {
+      console.error('❌ Call error with:', peerId, err);
+      removeRemoteStream(peerId);
+    });
+    
+    callsRef.current[peerId] = call;
+    setConnectedPeers(prev => ({ ...prev, [peerId]: true }));
+  };
+  
+  // Play remote audio stream
+  const playRemoteStream = (peerId, stream) => {
+    // Clean up existing audio element
     if (audioElementsRef.current[peerId]) {
       audioElementsRef.current[peerId].srcObject = null;
+    }
+    
+    const audio = document.createElement('audio');
+    audio.srcObject = stream;
+    audio.autoplay = true;
+    audio.playsInline = true;
+    audio.volume = 1.0;
+    
+    // Append to document body (required for some browsers)
+    audio.style.display = 'none';
+    document.body.appendChild(audio);
+    
+    audioElementsRef.current[peerId] = audio;
+    
+    audio.play().catch(e => {
+      console.log('⚠️ Audio autoplay blocked for:', peerId, e.message);
+    });
+    
+    setConnectedPeers(prev => ({ ...prev, [peerId]: true }));
+  };
+  
+  // Remove remote stream
+  const removeRemoteStream = (peerId) => {
+    if (audioElementsRef.current[peerId]) {
+      const audio = audioElementsRef.current[peerId];
+      audio.srcObject = null;
+      audio.remove();
       delete audioElementsRef.current[peerId];
+    }
+    if (callsRef.current[peerId]) {
+      try {
+        callsRef.current[peerId].close();
+      } catch (e) {}
+      delete callsRef.current[peerId];
     }
     setConnectedPeers(prev => {
       const newPeers = { ...prev };
@@ -1285,8 +1311,11 @@ export default function GamePage() {
     });
   };
 
+  // Start voice chat with PeerJS
   const startVoiceChat = async () => {
     try {
+      // Request microphone permission
+      console.log('🎤 Requesting microphone permission...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
@@ -1295,11 +1324,67 @@ export default function GamePage() {
         } 
       });
       
+      console.log('✅ Microphone access granted');
       localStreamRef.current = stream;
-      setVoiceEnabled(true);
-      setIsMuted(false);
       
-      // Setup audio analyser to detect when user is speaking
+      // Create PeerJS instance
+      const myPeerId = getPeerId(user?.id);
+      console.log('🔗 Creating PeerJS with ID:', myPeerId);
+      
+      const peer = new Peer(myPeerId, {
+        debug: 2,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { urls: 'stun:global.stun.twilio.com:3478' }
+          ]
+        }
+      });
+      
+      peer.on('open', (id) => {
+        console.log('✅ PeerJS connected with ID:', id);
+        peerRef.current = peer;
+        setVoiceEnabled(true);
+        setIsMuted(false);
+        
+        // Notify others via WebSocket
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send(JSON.stringify({ 
+            type: 'voice_join',
+            username: user?.username,
+            peer_id: id
+          }));
+        }
+        
+        toast.success('🎤 Voice chat ON! Click to call other players.');
+      });
+      
+      peer.on('call', handleIncomingCall);
+      
+      peer.on('error', (err) => {
+        console.error('❌ PeerJS error:', err);
+        if (err.type === 'peer-unavailable') {
+          // This is normal - peer might not be online
+          console.log('Peer not available yet');
+        } else if (err.type === 'unavailable-id') {
+          // ID already taken - try with a random suffix
+          toast.error('Voice chat ID conflict. Try again.');
+        } else {
+          toast.error('Voice chat error: ' + err.message);
+        }
+      });
+      
+      peer.on('disconnected', () => {
+        console.log('⚠️ PeerJS disconnected');
+        // Try to reconnect
+        if (!peer.destroyed) {
+          peer.reconnect();
+        }
+      });
+      
+      // Setup audio analyser for speaking detection
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const analyser = audioContext.createAnalyser();
       const microphone = audioContext.createMediaStreamSource(stream);
@@ -1315,9 +1400,8 @@ export default function GamePage() {
           const { analyser, dataArray } = audioAnalyserRef.current;
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b, 0) / bufferLength;
-          const isSpeaking = average > 30; // Threshold for speech detection
+          const isSpeaking = average > 30;
           
-          // Broadcast speaking status
           if (wsRef.current?.readyState === WebSocket.OPEN) {
             wsRef.current.send(JSON.stringify({ 
               type: 'voice_status',
@@ -1326,24 +1410,24 @@ export default function GamePage() {
             }));
           }
         }
-      }, 100);
+      }, 150);
       
-      // Notify server we joined voice
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ 
-          type: 'voice_join',
-          username: user?.username 
-        }));
-      }
-      
-      toast.success('🎤 Voice chat ON! Others can hear you now.');
     } catch (error) {
-      console.error('Microphone error:', error);
-      toast.error('Could not access microphone. Check permissions.');
+      console.error('❌ Microphone error:', error);
+      if (error.name === 'NotAllowedError') {
+        toast.error('Microphone permission denied. Please allow microphone access.');
+      } else if (error.name === 'NotFoundError') {
+        toast.error('No microphone found. Please connect a microphone.');
+      } else {
+        toast.error('Could not access microphone: ' + error.message);
+      }
     }
   };
 
+  // Stop voice chat
   const stopVoiceChat = () => {
+    console.log('🛑 Stopping voice chat');
+    
     // Notify server we left voice
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: 'voice_leave' }));
@@ -1352,18 +1436,34 @@ export default function GamePage() {
     toast.info('Voice chat disabled');
   };
 
+  // Cleanup all voice resources
   const cleanupVoice = () => {
+    // Stop speaking detection
     if (speakingIntervalRef.current) {
       clearInterval(speakingIntervalRef.current);
       speakingIntervalRef.current = null;
     }
+    
+    // Stop local stream
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(track => track.stop());
+      localStreamRef.current.getTracks().forEach(track => {
+        track.stop();
+        console.log('🛑 Stopped track:', track.kind);
+      });
       localStreamRef.current = null;
     }
-    Object.keys(peersRef.current).forEach(peerId => {
-      destroyPeer(peerId);
+    
+    // Close all calls
+    Object.keys(callsRef.current).forEach(peerId => {
+      removeRemoteStream(peerId);
     });
+    
+    // Destroy peer
+    if (peerRef.current) {
+      peerRef.current.destroy();
+      peerRef.current = null;
+    }
+    
     audioAnalyserRef.current = null;
     setVoiceEnabled(false);
     setIsMuted(true);
@@ -1372,23 +1472,41 @@ export default function GamePage() {
     setSpeakingUsers({});
   };
 
+  // Toggle mute
   const toggleMute = () => {
     if (localStreamRef.current) {
       const audioTrack = localStreamRef.current.getAudioTracks()[0];
       if (audioTrack) {
-        audioTrack.enabled = isMuted;
-        setIsMuted(!isMuted);
+        const newMutedState = !isMuted;
+        audioTrack.enabled = !newMutedState; // enabled is opposite of muted
+        setIsMuted(newMutedState);
         
-        // Notify others of mute status
+        console.log(newMutedState ? '🔇 Muted' : '🔊 Unmuted');
+        
+        // Notify others
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           wsRef.current.send(JSON.stringify({ 
             type: 'voice_status',
             is_speaking: false,
-            is_muted: !isMuted
+            is_muted: newMutedState
           }));
         }
+        
+        toast.info(newMutedState ? '🔇 Muted' : '🔊 Unmuted');
       }
     }
+  };
+  
+  // Call all other voice users
+  const callAllVoiceUsers = () => {
+    voiceUsers.forEach(userId => {
+      if (userId !== user?.id) {
+        const peerId = getPeerId(userId);
+        if (!callsRef.current[peerId]) {
+          callPeer(peerId);
+        }
+      }
+    });
   };
 
   const sendChatMessage = (message) => {
