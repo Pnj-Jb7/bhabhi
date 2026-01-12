@@ -1634,6 +1634,16 @@ export default function GamePage() {
     }
   };
 
+  // Skip to end - fast-forward bot game when you've escaped
+  const skipToEnd = async () => {
+    try {
+      toast.info('⏩ Skipping to end...');
+      await axios.post(`${API}/game/${roomCode}/skip-to-end`);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Cannot skip');
+    }
+  };
+
   const restartGame = async () => {
     try {
       await axios.post(`${API}/game/${roomCode}/restart`);
