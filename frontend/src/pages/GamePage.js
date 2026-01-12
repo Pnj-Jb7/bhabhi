@@ -692,7 +692,7 @@ export default function GamePage() {
   const [turnTimer, setTurnTimer] = useState(12);
   const turnTimerRef = useRef(null);
   
-  // Voice chat
+  // Voice chat - PeerJS implementation
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [connectedPeers, setConnectedPeers] = useState({});
@@ -704,7 +704,8 @@ export default function GamePage() {
   const prevTrickLength = useRef(0);
   const prevFinishedPlayers = useRef([]);
   const localStreamRef = useRef(null);
-  const peersRef = useRef({});
+  const peerRef = useRef(null); // PeerJS instance
+  const callsRef = useRef({}); // Active calls {peerId: MediaConnection}
   const audioElementsRef = useRef({});
   const audioAnalyserRef = useRef(null);
   const speakingIntervalRef = useRef(null);
