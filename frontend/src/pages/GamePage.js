@@ -1516,8 +1516,10 @@ export default function GamePage() {
     audioAnalyserRef.current = null;
     setVoiceEnabled(false);
     setIsMuted(true);
+    setMyPeerId(null);
     setConnectedPeers({});
     setVoiceUsers([]);
+    setVoicePeerIds({});
     setSpeakingUsers({});
   };
 
