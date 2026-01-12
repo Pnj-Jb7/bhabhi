@@ -1751,12 +1751,12 @@ export default function GamePage() {
     <div className="game-page min-h-screen w-screen overflow-x-hidden relative bg-zinc-950 flex flex-col" data-testid="game-page" style={{ minHeight: '100dvh' }}>
       {/* Spectator Banner - LEFT side, compact */}
       {hasEscaped && !isGameOver && (
-        <div className="absolute top-2 left-2 z-40 bg-emerald-600/90 text-white px-3 py-2 rounded-lg font-bold text-sm max-w-[200px]">
+        <div className="absolute top-2 left-2 z-40 bg-emerald-600/90 text-white px-3 py-2 rounded-lg font-bold text-sm max-w-[220px]">
           <div className="flex items-center gap-2">
             <span>🎉 Escaped!</span>
           </div>
           {watchingPlayerId && watchingPlayer ? (
-            <div className="text-xs mt-1">👁️ {watchingPlayer.username}</div>
+            <div className="text-xs mt-1">👁️ Watching: {watchingPlayer.username}</div>
           ) : spectatorLocked ? (
             <div className="text-xs mt-1 text-yellow-200">No cards to see</div>
           ) : (
@@ -1765,20 +1765,19 @@ export default function GamePage() {
               onClick={() => setSpectatorChoiceDialog(true)}
               className="bg-white text-emerald-700 hover:bg-emerald-100 font-bold text-xs h-6 mt-1"
             >
-              Choose Player
+              Choose Player to Watch
             </Button>
           )}
           
-          {/* Skip to End button - only show for bot games */}
-          {isBotsOnlyGame && (
-            <Button 
-              size="sm" 
-              onClick={skipToEnd}
-              className="bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs h-6 mt-2"
-            >
-              ⏩ Skip to End
-            </Button>
-          )}
+          {/* Skip to End button - always show for bot games, show greyed for human games */}
+          <Button 
+            size="sm" 
+            onClick={isBotsOnlyGame ? skipToEnd : () => toast.info('Can only skip in bot-only games')}
+            disabled={!isBotsOnlyGame}
+            className={`w-full font-bold text-xs h-7 mt-2 ${isBotsOnlyGame ? 'bg-orange-500 hover:bg-orange-400 text-white' : 'bg-gray-600 text-gray-400 cursor-not-allowed'}`}
+          >
+            ⏩ Skip to End {!isBotsOnlyGame && '(bots only)'}
+          </Button>
         </div>
       )}
 
