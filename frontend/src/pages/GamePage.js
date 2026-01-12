@@ -1701,6 +1701,9 @@ export default function GamePage() {
     });
   };
 
+  // Check if playing against bots only
+  const isBotsOnlyGame = otherPlayers.every(p => p.is_bot || p.id?.startsWith('bot_'));
+
   const getPlayerPosition = (index, total) => {
     const positions = {
       1: ['top'],
