@@ -1846,18 +1846,18 @@ export default function GamePage() {
       </div>
 
       {/* My Hand */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 z-30">
-        <div className="flex flex-col items-center gap-2">
-          {/* Info bar */}
-          <div className="flex items-center gap-4 bg-black/70 px-5 py-2.5 rounded-full backdrop-blur-sm flex-wrap justify-center">
+      <div className="absolute bottom-0 left-0 right-0 p-2 z-30" style={{ maxHeight: '45vh' }}>
+        <div className="flex flex-col items-center gap-1">
+          {/* Info bar - more compact on mobile */}
+          <div className="flex items-center gap-2 md:gap-4 bg-black/70 px-3 md:px-5 py-1.5 md:py-2.5 rounded-full backdrop-blur-sm flex-wrap justify-center">
             <div className={`
-              w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold
+              w-8 h-8 md:w-11 md:h-11 rounded-full flex items-center justify-center text-sm md:text-lg font-bold
               ${isMyTurn ? 'bg-yellow-500 ring-2 ring-yellow-300 animate-pulse' : hasEscaped ? 'bg-emerald-500' : 'bg-violet-600'}
             `}>
               {hasEscaped ? '✓' : user?.username?.[0]?.toUpperCase()}
             </div>
             <div className="text-white">
-              <p className="text-sm font-bold text-primary">
+              <p className="text-xs md:text-sm font-bold text-primary">
                 {hasEscaped ? 'Spectating' : `You (${myCardCount} cards)`}
               </p>
             </div>
@@ -1871,7 +1871,7 @@ export default function GamePage() {
                     key={player.id}
                     size="sm"
                     onClick={() => handleRequestCards(player.id)}
-                    className="h-7 px-2 text-xs bg-rose-600 hover:bg-rose-500"
+                    className="h-6 md:h-7 px-2 text-xs bg-rose-600 hover:bg-rose-500"
                   >
                     {player.username?.slice(0, 6)} ({gameState.player_card_counts?.[player.id]})
                   </Button>
@@ -1883,41 +1883,41 @@ export default function GamePage() {
               <Button
                 onClick={playCard}
                 disabled={!selectedCard || isPlaying}
-                className="h-10 px-8 rounded-full font-bold bg-primary hover:bg-primary/80"
+                className="h-8 md:h-10 px-4 md:px-8 rounded-full font-bold bg-primary hover:bg-primary/80 text-sm md:text-base"
               >
                 {isPlaying ? '...' : 'Play Card'}
               </Button>
             )}
           </div>
           
-          {/* Quick Emoji/Phrase Reactions */}
-          <div className="flex flex-wrap justify-center gap-1 mb-2">
-            {QUICK_EMOJIS.map(emoji => (
+          {/* Quick Emoji/Phrase Reactions - Hidden on very small screens, show less on mobile */}
+          <div className="hidden sm:flex flex-wrap justify-center gap-1 mb-1">
+            {QUICK_EMOJIS.slice(0, 5).map(emoji => (
               <button
                 key={emoji}
                 onClick={() => sendReaction(emoji, true)}
-                className="text-xl hover:scale-125 transition-transform bg-black/30 rounded-full w-8 h-8 flex items-center justify-center"
+                className="text-lg md:text-xl hover:scale-125 transition-transform bg-black/30 rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center"
               >
                 {emoji}
               </button>
             ))}
-            {QUICK_PHRASES.map(phrase => (
+            {QUICK_PHRASES.slice(0, 4).map(phrase => (
               <button
                 key={phrase}
                 onClick={() => sendReaction(phrase, false)}
-                className="text-xs px-2 py-1 bg-zinc-700 hover:bg-zinc-600 rounded-full text-white"
+                className="text-xs px-2 py-0.5 md:py-1 bg-zinc-700 hover:bg-zinc-600 rounded-full text-white"
               >
                 {phrase}
               </button>
             ))}
           </div>
           
-          {/* Cards - Full width, properly spaced */}
-          <div className="w-full px-2 pb-2 overflow-x-auto scrollbar-hide">
+          {/* Cards - Full width with horizontal scroll for mobile */}
+          <div className="w-full px-1 pb-1 md:pb-2 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="flex justify-center items-end" style={{ 
-              minWidth: myHand.length > 10 ? `${Math.max(myHand.length * 45, 300)}px` : 'auto',
-              paddingLeft: myHand.length > 10 ? '20px' : '0',
-              paddingRight: myHand.length > 10 ? '20px' : '0'
+              minWidth: myHand.length > 8 ? `${Math.max(myHand.length * 40, 300)}px` : 'auto',
+              paddingLeft: myHand.length > 8 ? '10px' : '0',
+              paddingRight: myHand.length > 8 ? '10px' : '0'
             }}>
               {myHand.map((card, index) => {
                 const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
