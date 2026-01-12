@@ -1759,6 +1759,17 @@ export default function GamePage() {
               Choose Player
             </Button>
           )}
+          
+          {/* Skip to End button - only show for bot games */}
+          {isBotsOnlyGame && (
+            <Button 
+              size="sm" 
+              onClick={skipToEnd}
+              className="bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs h-6 mt-2"
+            >
+              ⏩ Skip to End
+            </Button>
+          )}
         </div>
       )}
 
