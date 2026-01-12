@@ -1424,6 +1424,65 @@ async def restart_game(room_code: str, user: dict = Depends(get_current_user)):
     
     return {"message": "Game restarted"}
 
+# Skip to end - fast-forward bot game
+@api_router.post("/game/{room_code}/skip-to-end")
+async def skip_to_end(room_code: str, user: dict = Depends(get_current_user)):
+    game = await db.games.find_one({"room_code": room_code.upper()})
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    
+    room = await db.rooms.find_one({"code": room_code.upper()})
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    # Check if user has escaped
+    if user["id"] not in game.get("finished_players", []):
+        raise HTTPException(status_code=400, detail="You must escape first before skipping")
+    
+    # Check if all other players are bots
+    other_players = [p for p in room["players"] if p["id"] != user["id"]]
+    all_bots = all(p.get("is_bot", False) or p["id"].startswith("bot_") for p in other_players)
+    
+    if not all_bots:
+        raise HTTPException(status_code=400, detail="Can only skip in bot-only games")
+    
+    # Find the player with most cards - they become the loser
+    player_hands = game.get("player_hands", {})
+    remaining_players = [p for p in room["players"] if p["id"] not in game.get("finished_players", [])]
+    
+    if len(remaining_players) <= 1:
+        # Game almost over - just set the loser
+        if remaining_players:
+            loser_id = remaining_players[0]["id"]
+        else:
+            loser_id = None
+    else:
+        # Find player with most cards
+        loser_id = max(remaining_players, key=lambda p: len(player_hands.get(p["id"], [])))["id"]
+    
+    # Update game to finished
+    await db.games.update_one(
+        {"room_code": room_code.upper()},
+        {"$set": {
+            "status": "finished",
+            "loser": loser_id
+        }}
+    )
+    
+    game = await db.games.find_one({"room_code": room_code.upper()}, {"_id": 0})
+    loser_player = next((p for p in room["players"] if p["id"] == loser_id), None)
+    
+    await manager.broadcast_to_room(room_code.upper(), {
+        "type": "game_over",
+        "loser": loser_id,
+        "loser_name": loser_player["username"] if loser_player else "Unknown",
+        "status": "finished",
+        "players": room["players"],
+        "finished_players": game.get("finished_players", [])
+    })
+    
+    return {"message": "Game skipped to end", "loser": loser_id}
+
 # ==================== WEBSOCKET ====================
 
 @app.websocket("/api/ws/{room_code}/{user_id}")
