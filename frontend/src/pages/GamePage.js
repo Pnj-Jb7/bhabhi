@@ -1942,8 +1942,8 @@ export default function GamePage() {
                   >
                     <div 
                       className={`
-                        bg-white rounded-lg shadow-xl border-2 p-1.5
-                        w-[50px] h-[75px] md:w-[58px] md:h-[85px]
+                        bg-white rounded-lg shadow-xl border-2 p-1
+                        w-[42px] h-[62px] sm:w-[50px] sm:h-[75px] md:w-[58px] md:h-[85px]
                         flex flex-col justify-between
                         transition-all duration-200
                         ${isSelected ? 'border-yellow-400 ring-2 ring-yellow-400/70 shadow-yellow-400/50' : 'border-gray-200'}
@@ -1951,12 +1951,12 @@ export default function GamePage() {
                       `}
                     >
                       <div className={`flex flex-col items-start leading-none ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
-                        <span className="font-bold text-sm md:text-base">{card.rank}</span>
-                        <span className="text-lg md:text-xl -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
+                        <span className="font-bold text-xs sm:text-sm md:text-base">{card.rank}</span>
+                        <span className="text-base sm:text-lg md:text-xl -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
                       </div>
                       <div className={`flex flex-col items-end leading-none rotate-180 self-end ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
-                        <span className="font-bold text-sm md:text-base">{card.rank}</span>
-                        <span className="text-lg md:text-xl -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
+                        <span className="font-bold text-xs sm:text-sm md:text-base">{card.rank}</span>
+                        <span className="text-base sm:text-lg md:text-xl -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
                       </div>
                     </div>
                   </motion.div>
