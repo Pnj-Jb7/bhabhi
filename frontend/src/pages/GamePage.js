@@ -277,15 +277,57 @@ const createSoundEffects = () => {
   const playDholMP3 = () => {
     try {
       const audio = new Audio('/dhol.mp3');
-      audio.volume = 0.7;
-      audio.play().catch(e => console.log('Audio play failed:', e));
+      audio.volume = 1.0;
+      audio.play().then(() => {
+        console.log('Dhol played successfully');
+      }).catch(e => {
+        console.log('Dhol audio play failed, trying fallback:', e);
+        // Fallback to generated dhol beat
+        playDholBeat();
+      });
     } catch (e) {
       console.log('Dhol sound error:', e);
+      playDholBeat();
     }
   };
 
+  // Card play sound - distinctive "slap" sound
+  const playCardSound = () => {
+    try {
+      const ctx = getContext();
+      
+      // Create a short "slap" noise
+      const bufferSize = ctx.sampleRate * 0.08;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      
+      for (let i = 0; i < bufferSize; i++) {
+        // Sharp attack, quick decay
+        const t = i / bufferSize;
+        const envelope = Math.exp(-t * 30);
+        data[i] = (Math.random() * 2 - 1) * envelope;
+      }
+      
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 800;
+      
+      const gain = ctx.createGain();
+      gain.gain.value = 0.4;
+      
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      
+      source.start();
+    } catch (e) {}
+  };
+
   return {
-    playCard: playCardSlide,
+    playCard: playCardSound,  // Card slap sound
     tochoo: playTochooAww,
     escape: playDholMP3,  // Use actual dhol.mp3
     pickup: () => {
