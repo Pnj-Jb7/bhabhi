@@ -697,7 +697,9 @@ export default function GamePage() {
   const [isMuted, setIsMuted] = useState(true);
   const [connectedPeers, setConnectedPeers] = useState({});
   const [voiceUsers, setVoiceUsers] = useState([]); // Users in voice chat
+  const [voicePeerIds, setVoicePeerIds] = useState({}); // Map of user_id -> peer_id
   const [speakingUsers, setSpeakingUsers] = useState({}); // Track who is speaking
+  const [myPeerId, setMyPeerId] = useState(null); // My PeerJS ID
   
   const wsRef = useRef(null);
   const prevCurrentPlayer = useRef(null);
