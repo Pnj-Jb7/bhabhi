@@ -1426,7 +1426,7 @@ async def restart_game(room_code: str, user: dict = Depends(get_current_user)):
 
 # ==================== WEBSOCKET ====================
 
-@app.websocket("/ws/{room_code}/{user_id}")
+@app.websocket("/api/ws/{room_code}/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, room_code: str, user_id: str):
     await manager.connect(websocket, room_code.upper(), user_id)
     
