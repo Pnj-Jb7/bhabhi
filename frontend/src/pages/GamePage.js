@@ -1192,10 +1192,11 @@ export default function GamePage() {
   
   // Generate a unique peer ID for this user/room combination
   const getPeerId = (usrId) => {
-    // Create a clean peer ID (PeerJS only allows alphanumeric, -, _)
+    // Create a clean peer ID - use timestamp to ensure uniqueness
     const cleanRoomCode = roomCode?.replace(/[^a-zA-Z0-9]/g, '') || 'room';
     const cleanUserId = usrId?.replace(/[^a-zA-Z0-9]/g, '') || 'user';
-    return `bhabhi-${cleanRoomCode}-${cleanUserId}`;
+    const timestamp = Date.now().toString(36); // Short unique suffix
+    return `bhabhi${cleanRoomCode}${cleanUserId}${timestamp}`;
   };
 
   // Handle incoming call from another peer
@@ -1203,16 +1204,30 @@ export default function GamePage() {
     console.log('📞 Incoming call from:', call.peer);
     
     if (!localStreamRef.current) {
-      console.log('⚠️ No local stream to answer with');
+      console.log('⚠️ No local stream to answer with - getting mic...');
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          localStreamRef.current = stream;
+          call.answer(stream);
+          setupCallHandlers(call);
+        })
+        .catch(err => {
+          console.error('Failed to get mic for incoming call:', err);
+        });
       return;
     }
     
     // Answer the call with our stream
     call.answer(localStreamRef.current);
-    
+    setupCallHandlers(call);
+  };
+  
+  // Setup handlers for a call
+  const setupCallHandlers = (call) => {
     call.on('stream', (remoteStream) => {
       console.log('🔊 Received audio stream from:', call.peer);
       playRemoteStream(call.peer, remoteStream);
+      toast.success(`🔊 Connected to voice!`);
     });
     
     call.on('close', () => {
@@ -1229,10 +1244,16 @@ export default function GamePage() {
     setConnectedPeers(prev => ({ ...prev, [call.peer]: true }));
   };
   
-  // Call another peer
+  // Call another peer by their peer ID
   const callPeer = (peerId) => {
-    if (!peerRef.current || !localStreamRef.current) {
-      console.log('⚠️ Cannot call - no peer or stream');
+    if (!peerRef.current) {
+      console.log('⚠️ No PeerJS instance - cannot call');
+      toast.error('Voice chat not started. Click phone icon first.');
+      return;
+    }
+    
+    if (!localStreamRef.current) {
+      console.log('⚠️ No local stream - cannot call');
       return;
     }
     
@@ -1242,42 +1263,54 @@ export default function GamePage() {
     }
     
     console.log('📞 Calling peer:', peerId);
-    const call = peerRef.current.call(peerId, localStreamRef.current);
     
-    if (!call) {
-      console.log('⚠️ Failed to create call to:', peerId);
-      return;
+    try {
+      const call = peerRef.current.call(peerId, localStreamRef.current);
+      
+      if (!call) {
+        console.log('⚠️ Failed to create call to:', peerId);
+        return;
+      }
+      
+      call.on('stream', (remoteStream) => {
+        console.log('🔊 Received audio from:', peerId);
+        playRemoteStream(peerId, remoteStream);
+        toast.success(`🔊 Voice connected!`);
+      });
+      
+      call.on('close', () => {
+        console.log('📵 Call ended with:', peerId);
+        removeRemoteStream(peerId);
+      });
+      
+      call.on('error', (err) => {
+        console.error('❌ Call error with:', peerId, err);
+        toast.error(`Voice call failed`);
+        removeRemoteStream(peerId);
+      });
+      
+      callsRef.current[peerId] = call;
+      setConnectedPeers(prev => ({ ...prev, [peerId]: true }));
+    } catch (err) {
+      console.error('Error creating call:', err);
     }
-    
-    call.on('stream', (remoteStream) => {
-      console.log('🔊 Received audio from:', peerId);
-      playRemoteStream(peerId, remoteStream);
-    });
-    
-    call.on('close', () => {
-      console.log('📵 Call ended with:', peerId);
-      removeRemoteStream(peerId);
-    });
-    
-    call.on('error', (err) => {
-      console.error('❌ Call error with:', peerId, err);
-      removeRemoteStream(peerId);
-    });
-    
-    callsRef.current[peerId] = call;
-    setConnectedPeers(prev => ({ ...prev, [peerId]: true }));
   };
   
   // Play remote audio stream
   const playRemoteStream = (peerId, stream) => {
+    console.log('🎵 Playing remote stream from:', peerId);
+    
     // Clean up existing audio element
     if (audioElementsRef.current[peerId]) {
       audioElementsRef.current[peerId].srcObject = null;
+      audioElementsRef.current[peerId].remove();
     }
     
     const audio = document.createElement('audio');
     audio.srcObject = stream;
     audio.autoplay = true;
+    audio.playsInline = true;
+    audio.volume = 1.0;
     audio.playsInline = true;
     audio.volume = 1.0;
     
