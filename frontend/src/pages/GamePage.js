@@ -1711,8 +1711,17 @@ export default function GamePage() {
     });
   };
 
-  // Check if playing against bots only
-  const isBotsOnlyGame = otherPlayers.every(p => p.is_bot || p.id?.startsWith('bot_'));
+  // Check if playing against bots only (all OTHER players are bots)
+  const isBotsOnlyGame = otherPlayers.length > 0 && otherPlayers.every(p => p.is_bot || p.id?.startsWith('bot_'));
+  
+  // Debug log
+  console.log('Skip button check:', { 
+    hasEscaped, 
+    isGameOver, 
+    isBotsOnlyGame, 
+    otherPlayersCount: otherPlayers.length,
+    otherPlayers: otherPlayers.map(p => ({ id: p.id, is_bot: p.is_bot, startsWithBot: p.id?.startsWith('bot_') }))
+  });
 
   const getPlayerPosition = (index, total) => {
     const positions = {
