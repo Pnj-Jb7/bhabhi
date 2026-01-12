@@ -2181,8 +2181,14 @@ export default function GamePage() {
                 }}
                 className="w-full h-12 justify-start gap-3 bg-zinc-800 hover:bg-zinc-700"
               >
-                <div className="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center">
-                  {player.id.startsWith('bot_') ? '🤖' : player.username?.[0]?.toUpperCase()}
+                <div className="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center text-xl">
+                  {player.id.startsWith('bot_') ? (
+                    player.username === 'Simran' ? '👩' : 
+                    player.username === 'Anmol' ? '👨' :
+                    player.username === 'Sehaj' ? '👦' :
+                    player.username === 'Jaggi' ? '👴' :
+                    '👤'
+                  ) : player.username?.[0]?.toUpperCase()}
                 </div>
                 <span>{player.username}</span>
                 <span className="ml-auto text-gray-400">{gameState.player_card_counts?.[player.id]} cards</span>
