@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Mic, MicOff, LogOut, RotateCcw, Volume2, VolumeX, MessageCircle, Send, X, Phone, PhoneOff
 } from 'lucide-react';
-import SimplePeer from 'simple-peer';
+import Peer from 'peerjs';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const WS_URL = process.env.REACT_APP_BACKEND_URL?.replace('https://', 'wss://').replace('http://', 'ws://');
