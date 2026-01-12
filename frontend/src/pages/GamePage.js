@@ -815,7 +815,6 @@ export default function GamePage() {
           setDisplayTrick([]);
           setTrickResult(null);
           setLastPlayedCardId(null);
-          setTurnTimer(12); // Start timer
           break;
           
         case 'game_update':
@@ -835,11 +834,6 @@ export default function GamePage() {
           // Update all_hands if we're a spectator
           if (data.all_hands) {
             setAllHands(data.all_hands);
-          }
-          
-          // Reset timer when turn changes
-          if (data.current_player === user?.id) {
-            setTurnTimer(12);
           }
           
           // Play card sound EVERY time a card is played
