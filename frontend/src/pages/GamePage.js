@@ -1983,7 +1983,7 @@ export default function GamePage() {
 
       {/* Controls - top right */}
       <div className="absolute top-4 right-4 flex items-center gap-2 z-40">
-        {/* Voice Chat Controls */}
+        {/* Voice Chat Controls - PeerJS */}
         {!voiceEnabled ? (
           <Button
             variant="ghost"
@@ -1991,39 +1991,72 @@ export default function GamePage() {
             onClick={startVoiceChat}
             className="rounded-full text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 border border-gray-600"
             title="Start Voice Chat"
+            data-testid="voice-start-btn"
           >
             <Phone className="w-5 h-5" />
           </Button>
         ) : (
           <>
+            {/* Live indicator */}
             <div className="flex items-center gap-1 bg-emerald-600/30 rounded-full px-2 py-1 border border-emerald-500">
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-              <span className="text-xs text-emerald-400">LIVE</span>
+              <span className="text-xs text-emerald-400">
+                {isMuted ? '🔇 MUTED' : '🔊 LIVE'}
+              </span>
             </div>
+            
+            {/* Mute/Unmute button */}
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleMute}
               className={`rounded-full ${isMuted ? 'text-red-400 bg-red-500/30 border border-red-500' : 'text-emerald-400 bg-emerald-500/30 border border-emerald-500'}`}
               title={isMuted ? 'Unmute' : 'Mute'}
+              data-testid="voice-mute-btn"
             >
               {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </Button>
+            
+            {/* Call All button - connect to other voice users */}
+            {voiceUsers.length > 1 && Object.keys(connectedPeers).length < voiceUsers.length - 1 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={callAllVoiceUsers}
+                className="rounded-full text-xs bg-blue-500/30 text-blue-300 border border-blue-500 hover:bg-blue-500/40"
+                title="Connect to all voice users"
+                data-testid="voice-call-all-btn"
+              >
+                📞 Call All ({voiceUsers.length - 1})
+              </Button>
+            )}
+            
+            {/* End voice chat */}
             <Button
               variant="ghost"
               size="icon"
               onClick={stopVoiceChat}
               className="rounded-full text-red-400 bg-red-500/20 border border-red-500 hover:bg-red-500/30"
               title="End Voice Chat"
+              data-testid="voice-stop-btn"
             >
               <PhoneOff className="w-5 h-5" />
             </Button>
-            {/* Voice chat indicator */}
-            {voiceUsers.length > 1 && (
-              <span className="text-xs text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded-full">
-                🎤 {voiceUsers.length} in call
+            
+            {/* Connection count */}
+            {Object.keys(connectedPeers).length > 0 && (
+              <span className="text-xs text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded-full border border-emerald-500">
+                🔗 {Object.keys(connectedPeers).length} connected
               </span>
             )}
+            
+            {/* Voice users count */}
+            {voiceUsers.length > 1 && (
+              <span className="text-xs text-blue-400 bg-blue-500/20 px-2 py-1 rounded-full">
+                🎤 {voiceUsers.length} in room
+              </span>
+            )}
+            
             {/* Show who's speaking */}
             {voiceUsers.filter(id => speakingUsers[id] && id !== user?.id).map(id => {
               const speakingPlayer = (gameState?.players || room?.players || []).find(p => p.id === id);
