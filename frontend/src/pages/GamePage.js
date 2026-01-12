@@ -852,6 +852,7 @@ export default function GamePage() {
           if (soundEnabled) {
             // Tochoo sound and alert
             if (data.last_trick_result?.type === 'pickup' && data.last_trick_result !== trickResult) {
+              console.log('🔥 TOCHOO! Playing tochoo sound');
               sounds.tochoo();
               setShowTochooAlert(true);
               setTimeout(() => setShowTochooAlert(false), 5000);
@@ -864,32 +865,34 @@ export default function GamePage() {
             
             // Game finished - play dhol for winners LOUDLY
             if (data.status === 'finished' && data.loser && gameState?.status !== 'finished') {
-              console.log('Game finished! Playing win/lose sound');
+              console.log('🎮 Game finished! Playing win/lose sound');
               setTimeout(() => {
                 if (data.loser === user?.id) {
-                  console.log('You lost - playing sad sound');
+                  console.log('😢 You lost - playing sad sound');
                   sounds.lose();
                 } else {
-                  console.log('You won - playing DHOL!');
+                  console.log('🎉 You won - playing DHOL!');
                   // Play dhol twice for emphasis
                   sounds.escape();
-                  setTimeout(() => sounds.escape(), 1500);
+                  setTimeout(() => sounds.escape(), 1200);
                 }
-              }, 500);
+              }, 300);
             }
           }
           prevCurrentPlayer.current = data.current_player;
           
-          // Update display with LONGER DELAY for completed tricks
+          // Update display with MUCH LONGER DELAY for completed tricks (5 seconds)
           if (completedTrick.length > 0) {
+            console.log('📋 Showing completed trick with', completedTrick.length, 'cards - will clear in 5s');
             // Show completed trick FIRST and keep it visible
             setDisplayTrick(completedTrick);
             setTrickResult(data.last_trick_result);
             
-            // Keep cards visible for 3.5 seconds so everyone can see
+            // Keep cards visible for 5 FULL SECONDS so everyone can see the result
             setTimeout(() => {
+              console.log('🧹 Clearing completed trick display');
               setDisplayTrick([]);
-            }, 3500);
+            }, 5000);
           } else if (currentTrick.length > 0) {
             // Show current trick - don't clear until complete
             setDisplayTrick(currentTrick);
