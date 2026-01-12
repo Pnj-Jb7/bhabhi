@@ -1927,29 +1927,29 @@ export default function GamePage() {
             ))}
           </div>
           
-          {/* Cards - Horizontal scrolling */}
+          {/* Cards - Centered, tight overlap like reference */}
           <div 
-            className="w-full overflow-x-auto pb-safe" 
+            className="w-full overflow-x-auto pb-safe flex justify-center" 
             style={{ 
               WebkitOverflowScrolling: 'touch',
               paddingBottom: 'env(safe-area-inset-bottom, 8px)'
             }}
           >
-            <div className="flex justify-start md:justify-center items-end px-2 min-w-max">
+            <div className="flex items-end justify-center">
               {myHand.map((card, index) => {
                 const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
                 const isSelected = selectedCard?.suit === card.suit && selectedCard?.rank === card.rank;
                 
-                // Tighter overlap on mobile
+                // TIGHT overlap like reference image - only show edge of each card
                 const totalCards = myHand.length;
-                const overlap = totalCards > 20 ? -32 : totalCards > 15 ? -28 : totalCards > 10 ? -22 : totalCards > 6 ? -16 : -8;
+                const overlap = totalCards > 25 ? -34 : totalCards > 20 ? -32 : totalCards > 15 ? -30 : totalCards > 10 ? -26 : totalCards > 6 ? -22 : -16;
                 
                 return (
                   <motion.div
                     key={`${card.suit}-${card.rank}`}
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: isSelected ? -20 : 0 }}
-                    transition={{ delay: index * 0.005 }}
+                    animate={{ opacity: 1, y: isSelected ? -25 : 0 }}
+                    transition={{ delay: index * 0.003 }}
                     style={{ 
                       marginLeft: index === 0 ? 0 : overlap,
                       zIndex: isSelected ? 100 : index 
@@ -1960,20 +1960,20 @@ export default function GamePage() {
                     <div 
                       className={`
                         bg-white rounded-md shadow-lg border-2 p-0.5
-                        w-[38px] h-[56px] sm:w-[46px] sm:h-[68px] md:w-[54px] md:h-[80px]
+                        w-[36px] h-[52px] sm:w-[42px] sm:h-[62px] md:w-[50px] md:h-[72px]
                         flex flex-col justify-between
-                        transition-all duration-150
+                        transition-all duration-100
                         ${isSelected ? 'border-yellow-400 ring-2 ring-yellow-400/70 shadow-yellow-400/50 -translate-y-2' : 'border-gray-300'}
                         ${!isMyTurn || isGameOver ? 'opacity-50' : 'active:scale-95'}
                       `}
                     >
                       <div className={`flex flex-col items-start leading-none ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
-                        <span className="font-bold text-[10px] sm:text-xs md:text-sm">{card.rank}</span>
-                        <span className="text-sm sm:text-base md:text-lg -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
+                        <span className="font-bold text-[9px] sm:text-[10px] md:text-xs">{card.rank}</span>
+                        <span className="text-xs sm:text-sm md:text-base -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
                       </div>
                       <div className={`flex flex-col items-end leading-none rotate-180 self-end ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
-                        <span className="font-bold text-[10px] sm:text-xs md:text-sm">{card.rank}</span>
-                        <span className="text-sm sm:text-base md:text-lg -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
+                        <span className="font-bold text-[9px] sm:text-[10px] md:text-xs">{card.rank}</span>
+                        <span className="text-xs sm:text-sm md:text-base -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
                       </div>
                     </div>
                   </motion.div>
