@@ -1031,27 +1031,37 @@ export default function GamePage() {
           break;
           
         case 'voice_user_joined':
-          // Someone joined voice chat - try to call them with PeerJS
+          // Someone joined voice chat - store their peer_id and try to call them
           if (data.user_id !== user?.id) {
+            const theirPeerId = data.peer_id;
+            console.log(`🎤 ${data.username} joined voice with peer_id: ${theirPeerId}`);
+            
             setVoiceUsers(prev => [...new Set([...prev, data.user_id])]);
+            setVoicePeerIds(prev => ({ ...prev, [data.user_id]: theirPeerId }));
             toast.info(`🎤 ${data.username} joined voice chat`);
             
-            // If we're in voice chat, call them after a short delay
-            if (voiceEnabled && peerRef.current && localStreamRef.current) {
+            // If we're in voice chat and they have a peer_id, call them
+            if (theirPeerId && voiceEnabled && peerRef.current && localStreamRef.current) {
               setTimeout(() => {
-                const theirPeerId = getPeerId(data.user_id);
-                console.log('📞 Auto-calling new voice user:', theirPeerId);
+                console.log('📞 Auto-calling:', theirPeerId);
                 callPeer(theirPeerId);
-              }, 1000);
+              }, 1500);
             }
           }
           break;
           
         case 'voice_user_left':
           // Someone left voice chat - clean up their connection
-          const leftPeerId = getPeerId(data.user_id);
-          removeRemoteStream(leftPeerId);
+          const leftPeerId = voicePeerIds[data.user_id];
+          if (leftPeerId) {
+            removeRemoteStream(leftPeerId);
+          }
           setVoiceUsers(prev => prev.filter(id => id !== data.user_id));
+          setVoicePeerIds(prev => {
+            const newIds = { ...prev };
+            delete newIds[data.user_id];
+            return newIds;
+          });
           setSpeakingUsers(prev => {
             const newState = { ...prev };
             delete newState[data.user_id];
