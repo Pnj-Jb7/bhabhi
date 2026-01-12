@@ -64,6 +64,8 @@ Build a multiplayer Bhabhi card game with the following features:
 - [x] Trick clearing delay increased to 5 seconds
 - [x] Sound preloading for better playback
 - [x] PeerJS voice chat replacing simple-peer
+- [x] Voice chat peer_id now correctly passed through WebSocket
+- [x] Turn timer set to 12 seconds
 
 ## Known Issues / Pending Items
 
