@@ -1757,12 +1757,12 @@ export default function GamePage() {
       </AnimatePresence>
 
       {/* Game Table */}
-      <div className="absolute inset-0 flex items-center justify-center p-4">
+      <div className="absolute inset-0 flex items-center justify-center p-2 md:p-4">
         <div 
-          className="relative rounded-[80px] md:rounded-[120px] border-[10px] border-zinc-800 shadow-2xl overflow-hidden"
+          className="relative rounded-[40px] sm:rounded-[80px] md:rounded-[120px] border-[6px] md:border-[10px] border-zinc-800 shadow-2xl overflow-hidden"
           style={{ 
-            width: '95vw', 
-            height: '72vh', 
+            width: '98vw', 
+            height: '50vh', 
             maxWidth: '1400px', 
             maxHeight: '750px',
             background: 'linear-gradient(145deg, #1a5c30 0%, #2d7a47 50%, #1a5c30 100%)'
