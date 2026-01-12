@@ -1534,13 +1534,6 @@ export default function GamePage() {
       toast.error('Not your turn!');
       return;
     }
-    
-    // Clear timer
-    if (turnTimerRef.current) {
-      clearInterval(turnTimerRef.current);
-      turnTimerRef.current = null;
-    }
-    setTurnTimer(0);
 
     setIsPlaying(true);
     try {
