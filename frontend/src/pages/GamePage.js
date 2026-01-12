@@ -814,47 +814,58 @@ export default function GamePage() {
             setTurnTimer(12);
           }
           
-          // Sounds
+          // Play card sound EVERY time a card is played
+          if (soundEnabled && currentTrick.length > prevTrickLength.current) {
+            sounds.playCard();
+          }
+          
+          // Sounds for special events
           if (soundEnabled) {
+            // Tochoo sound and alert
             if (data.last_trick_result?.type === 'pickup' && data.last_trick_result !== trickResult) {
               sounds.tochoo();
               setShowTochooAlert(true);
-              setTimeout(() => setShowTochooAlert(false), 4000);
+              setTimeout(() => setShowTochooAlert(false), 5000);
             }
-            if (currentTrick.length > (displayTrick.length || 0) && !completedTrick.length) {
-              sounds.playCard();
-            }
+            
+            // Your turn notification sound
             if (data.current_player === user?.id && prevCurrentPlayer.current !== user?.id) {
               sounds.yourTurn();
             }
-            // Game finished - play dhol for winners
+            
+            // Game finished - play dhol for winners LOUDLY
             if (data.status === 'finished' && data.loser && gameState?.status !== 'finished') {
+              console.log('Game finished! Playing win/lose sound');
               setTimeout(() => {
                 if (data.loser === user?.id) {
+                  console.log('You lost - playing sad sound');
                   sounds.lose();
                 } else {
-                  // Winner - play dhol!
+                  console.log('You won - playing DHOL!');
+                  // Play dhol twice for emphasis
                   sounds.escape();
+                  setTimeout(() => sounds.escape(), 1500);
                 }
               }, 500);
             }
           }
           prevCurrentPlayer.current = data.current_player;
           
-          // Update display with DELAY for completed tricks so players can see all cards
+          // Update display with LONGER DELAY for completed tricks
           if (completedTrick.length > 0) {
-            // Show completed trick first
+            // Show completed trick FIRST and keep it visible
             setDisplayTrick(completedTrick);
             setTrickResult(data.last_trick_result);
-            // Clear trick after 2.5 seconds delay so players can see who played what
+            
+            // Keep cards visible for 3.5 seconds so everyone can see
             setTimeout(() => {
               setDisplayTrick([]);
-            }, 2500);
+            }, 3500);
           } else if (currentTrick.length > 0) {
+            // Show current trick - don't clear until complete
             setDisplayTrick(currentTrick);
             setTrickResult(null);
           }
-          // Don't clear immediately - let the delay handle it
           
           setGameState(prev => ({
             ...prev,
