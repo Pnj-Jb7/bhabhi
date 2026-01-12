@@ -1237,11 +1237,12 @@ export default function GamePage() {
     
     const audio = document.createElement('audio');
     audio.srcObject = stream;
-    audio.autoplay = true;
     audio.playsInline = true;
     audio.volume = 1.0;
-    audio.playsInline = true;
-    audio.volume = 1.0;
+    
+    // iOS Safari requires these specific attributes
+    audio.setAttribute('playsinline', 'true');
+    audio.setAttribute('webkit-playsinline', 'true');
     
     // Append to document body (required for some browsers)
     audio.style.display = 'none';
@@ -1249,10 +1250,42 @@ export default function GamePage() {
     
     audioElementsRef.current[peerId] = audio;
     
-    audio.play().catch(e => {
-      console.log('⚠️ Audio autoplay blocked for:', peerId, e.message);
-    });
+    // For iOS - need to play with user interaction context
+    const playAudio = async () => {
+      try {
+        // Some browsers need this sequence
+        audio.muted = true;
+        await audio.play();
+        audio.muted = false;
+        console.log('✅ Audio playing for:', peerId);
+      } catch (e) {
+        console.log('⚠️ Audio autoplay blocked, trying alternative for:', peerId, e.message);
+        // Try again unmuted
+        try {
+          audio.muted = false;
+          await audio.play();
+          console.log('✅ Audio playing (2nd attempt) for:', peerId);
+        } catch (e2) {
+          console.error('❌ Audio still blocked:', e2.message);
+          toast.error('Audio blocked. Tap anywhere to enable audio.');
+          // Add one-time click handler to play audio
+          const enableAudio = async () => {
+            try {
+              await audio.play();
+              console.log('✅ Audio enabled after user interaction');
+              document.removeEventListener('click', enableAudio);
+              document.removeEventListener('touchstart', enableAudio);
+            } catch (e3) {
+              console.error('Still cannot play audio:', e3);
+            }
+          };
+          document.addEventListener('click', enableAudio, { once: true });
+          document.addEventListener('touchstart', enableAudio, { once: true });
+        }
+      }
+    };
     
+    playAudio();
     setConnectedPeers(prev => ({ ...prev, [peerId]: true }));
   };
   
