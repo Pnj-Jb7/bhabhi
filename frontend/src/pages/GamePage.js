@@ -1845,8 +1845,8 @@ export default function GamePage() {
         </div>
       </div>
 
-      {/* My Hand */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 z-30" style={{ maxHeight: '45vh' }}>
+      {/* My Hand - Fixed at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 p-1 md:p-2 z-30 bg-gradient-to-t from-zinc-950 via-zinc-950/95 to-transparent">
         <div className="flex flex-col items-center gap-1">
           {/* Info bar - more compact on mobile */}
           <div className="flex items-center gap-2 md:gap-4 bg-black/70 px-3 md:px-5 py-1.5 md:py-2.5 rounded-full backdrop-blur-sm flex-wrap justify-center">
@@ -1890,8 +1890,8 @@ export default function GamePage() {
             )}
           </div>
           
-          {/* Quick Emoji/Phrase Reactions - Hidden on very small screens, show less on mobile */}
-          <div className="hidden sm:flex flex-wrap justify-center gap-1 mb-1">
+          {/* Quick Emoji/Phrase Reactions - Hidden on very small screens */}
+          <div className="hidden sm:flex flex-wrap justify-center gap-1">
             {QUICK_EMOJIS.slice(0, 5).map(emoji => (
               <button
                 key={emoji}
@@ -1912,27 +1912,29 @@ export default function GamePage() {
             ))}
           </div>
           
-          {/* Cards - Full width with horizontal scroll for mobile */}
-          <div className="w-full px-1 pb-1 md:pb-2 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <div className="flex justify-center items-end" style={{ 
-              minWidth: myHand.length > 8 ? `${Math.max(myHand.length * 40, 300)}px` : 'auto',
-              paddingLeft: myHand.length > 8 ? '10px' : '0',
-              paddingRight: myHand.length > 8 ? '10px' : '0'
-            }}>
+          {/* Cards - Horizontal scrolling */}
+          <div 
+            className="w-full overflow-x-auto pb-safe" 
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+              paddingBottom: 'env(safe-area-inset-bottom, 8px)'
+            }}
+          >
+            <div className="flex justify-start md:justify-center items-end px-2 min-w-max">
               {myHand.map((card, index) => {
                 const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
                 const isSelected = selectedCard?.suit === card.suit && selectedCard?.rank === card.rank;
                 
-                // Better overlap calculation - cards should be more visible
+                // Tighter overlap on mobile
                 const totalCards = myHand.length;
-                const overlap = totalCards > 20 ? -35 : totalCards > 15 ? -30 : totalCards > 10 ? -25 : totalCards > 6 ? -18 : -10;
+                const overlap = totalCards > 20 ? -32 : totalCards > 15 ? -28 : totalCards > 10 ? -22 : totalCards > 6 ? -16 : -8;
                 
                 return (
                   <motion.div
                     key={`${card.suit}-${card.rank}`}
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: isSelected ? -30 : 0 }}
-                    transition={{ delay: index * 0.01 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: isSelected ? -20 : 0 }}
+                    transition={{ delay: index * 0.005 }}
                     style={{ 
                       marginLeft: index === 0 ? 0 : overlap,
                       zIndex: isSelected ? 100 : index 
@@ -1942,21 +1944,21 @@ export default function GamePage() {
                   >
                     <div 
                       className={`
-                        bg-white rounded-lg shadow-xl border-2 p-1
-                        w-[42px] h-[62px] sm:w-[50px] sm:h-[75px] md:w-[58px] md:h-[85px]
+                        bg-white rounded-md shadow-lg border-2 p-0.5
+                        w-[38px] h-[56px] sm:w-[46px] sm:h-[68px] md:w-[54px] md:h-[80px]
                         flex flex-col justify-between
-                        transition-all duration-200
-                        ${isSelected ? 'border-yellow-400 ring-2 ring-yellow-400/70 shadow-yellow-400/50' : 'border-gray-200'}
-                        ${!isMyTurn || isGameOver ? 'opacity-60' : 'hover:border-primary hover:-translate-y-3 hover:shadow-2xl hover:z-50'}
+                        transition-all duration-150
+                        ${isSelected ? 'border-yellow-400 ring-2 ring-yellow-400/70 shadow-yellow-400/50 -translate-y-2' : 'border-gray-300'}
+                        ${!isMyTurn || isGameOver ? 'opacity-50' : 'active:scale-95'}
                       `}
                     >
                       <div className={`flex flex-col items-start leading-none ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
-                        <span className="font-bold text-xs sm:text-sm md:text-base">{card.rank}</span>
-                        <span className="text-base sm:text-lg md:text-xl -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
+                        <span className="font-bold text-[10px] sm:text-xs md:text-sm">{card.rank}</span>
+                        <span className="text-sm sm:text-base md:text-lg -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
                       </div>
                       <div className={`flex flex-col items-end leading-none rotate-180 self-end ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
-                        <span className="font-bold text-xs sm:text-sm md:text-base">{card.rank}</span>
-                        <span className="text-base sm:text-lg md:text-xl -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
+                        <span className="font-bold text-[10px] sm:text-xs md:text-sm">{card.rank}</span>
+                        <span className="text-sm sm:text-base md:text-lg -mt-0.5">{SUIT_DISPLAY[card.suit].symbol}</span>
                       </div>
                     </div>
                   </motion.div>
