@@ -940,7 +940,9 @@ export default function GamePage() {
             setSpectatorChoiceDialog(true);
             // Play dhol for escape!
             if (soundEnabled) {
+              console.log('🎉 YOU ESCAPED! Playing dhol sound...');
               sounds.escape();
+              setTimeout(() => sounds.escape(), 800);
             }
             const myPosition = newFinishedPlayers.indexOf(user?.id) + 1;
             toast.success(`🎉 You escaped! Position: ${myPosition}${myPosition === 1 ? 'st' : myPosition === 2 ? 'nd' : myPosition === 3 ? 'rd' : 'th'}!`, { duration: 5000 });
@@ -949,7 +951,10 @@ export default function GamePage() {
           // Check if ANYONE else just escaped (by playing last card)
           const newlyEscaped = newFinishedPlayers.filter(p => !prevFinishedPlayers.current.includes(p) && p !== user?.id);
           if (newlyEscaped.length > 0) {
-            if (soundEnabled) sounds.escape(); // Play dhol for other player's escape
+            if (soundEnabled) {
+              console.log('🎊 Someone else escaped! Playing dhol sound...');
+              sounds.escape(); // Play dhol for other player's escape
+            }
             const escapedPlayer = data.players?.find(p => newlyEscaped.includes(p.id));
             const position = newFinishedPlayers.indexOf(newlyEscaped[0]) + 1;
             if (escapedPlayer) {
@@ -970,8 +975,9 @@ export default function GamePage() {
             toast.success(`${giver?.username} escaped by giving ${data.cards_count} cards to ${receiver?.username}!`);
             // Play dhol beat TWICE for card giving escape!
             if (soundEnabled) {
+              console.log('🎁 Cards given escape! Playing dhol...');
               sounds.escape();
-              setTimeout(() => sounds.escape(), 900);
+              setTimeout(() => sounds.escape(), 800);
             }
             if (data.all_hands) setAllHands(data.all_hands);
             
