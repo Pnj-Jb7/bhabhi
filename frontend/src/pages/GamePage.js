@@ -1028,23 +1028,27 @@ export default function GamePage() {
           if (soundEnabled && data.user_id !== user?.id) sounds.message();
           break;
           
-        case 'voice_signal':
-          // Handle incoming WebRTC signal
-          handleVoiceSignal(data);
-          break;
-          
         case 'voice_user_joined':
-          // Someone joined voice chat - create peer connection
-          if (data.user_id !== user?.id && voiceEnabled && localStreamRef.current) {
-            createPeer(data.user_id, true);
+          // Someone joined voice chat - try to call them with PeerJS
+          if (data.user_id !== user?.id) {
+            setVoiceUsers(prev => [...new Set([...prev, data.user_id])]);
+            toast.info(`🎤 ${data.username} joined voice chat`);
+            
+            // If we're in voice chat, call them after a short delay
+            if (voiceEnabled && peerRef.current && localStreamRef.current) {
+              setTimeout(() => {
+                const theirPeerId = getPeerId(data.user_id);
+                console.log('📞 Auto-calling new voice user:', theirPeerId);
+                callPeer(theirPeerId);
+              }, 1000);
+            }
           }
-          setVoiceUsers(prev => [...new Set([...prev, data.user_id])]);
-          toast.info(`🎤 ${data.username} joined voice chat`);
           break;
           
         case 'voice_user_left':
-          // Someone left voice chat
-          destroyPeer(data.user_id);
+          // Someone left voice chat - clean up their connection
+          const leftPeerId = getPeerId(data.user_id);
+          removeRemoteStream(leftPeerId);
           setVoiceUsers(prev => prev.filter(id => id !== data.user_id));
           setSpeakingUsers(prev => {
             const newState = { ...prev };
