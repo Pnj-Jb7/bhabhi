@@ -1305,7 +1305,7 @@ export default function GamePage() {
     if (callsRef.current[peerId]) {
       try {
         callsRef.current[peerId].close();
-      } catch (e) {}
+      } catch (e) { /* ignore close errors */ }
       delete callsRef.current[peerId];
     }
     setConnectedPeers(prev => {
