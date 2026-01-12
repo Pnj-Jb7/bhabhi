@@ -13,7 +13,7 @@ import {
 import Peer from 'peerjs';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const WS_URL = process.env.REACT_APP_BACKEND_URL?.replace('https://', 'wss://').replace('http://', 'ws://');
+const WS_URL = process.env.REACT_APP_BACKEND_URL?.replace('https://', 'wss://').replace('http://', 'ws://') + '/api';
 
 // Enhanced Sound effects using Web Audio API - Realistic card game sounds
 const createSoundEffects = () => {
