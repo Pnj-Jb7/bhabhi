@@ -273,20 +273,49 @@ const createSoundEffects = () => {
     } catch (e) {}
   };
 
+  // Preload dhol audio for instant playback
+  let dholAudio = null;
+  let dholLoaded = false;
+  
+  const preloadDhol = () => {
+    if (!dholAudio) {
+      dholAudio = new Audio('/dhol.mp3');
+      dholAudio.preload = 'auto';
+      dholAudio.volume = 1.0;
+      dholAudio.addEventListener('canplaythrough', () => {
+        dholLoaded = true;
+        console.log('Dhol audio preloaded and ready');
+      });
+      // Load it
+      dholAudio.load();
+    }
+  };
+  
+  // Call preload immediately
+  preloadDhol();
+
   // Play actual dhol.mp3 file for escapes/wins
   const playDholMP3 = () => {
+    console.log('🎵 playDholMP3 called! dholLoaded:', dholLoaded);
     try {
+      // Create a new audio instance each time for overlapping plays
       const audio = new Audio('/dhol.mp3');
       audio.volume = 1.0;
-      audio.play().then(() => {
-        console.log('Dhol played successfully');
-      }).catch(e => {
-        console.log('Dhol audio play failed, trying fallback:', e);
-        // Fallback to generated dhol beat
-        playDholBeat();
-      });
+      
+      // Use a promise to handle the play
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          console.log('✅ Dhol played successfully!');
+        }).catch(e => {
+          console.log('⚠️ Dhol audio play blocked by browser, trying fallback:', e.message);
+          // Fallback to generated dhol beat
+          playDholBeat();
+        });
+      }
     } catch (e) {
-      console.log('Dhol sound error:', e);
+      console.log('❌ Dhol sound error:', e);
       playDholBeat();
     }
   };
