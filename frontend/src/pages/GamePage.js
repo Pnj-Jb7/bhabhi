@@ -688,10 +688,6 @@ export default function GamePage() {
   // WebSocket connection state
   const [wsConnected, setWsConnected] = useState(false);
   
-  // Turn timer - 12 seconds
-  const [turnTimer, setTurnTimer] = useState(12);
-  const turnTimerRef = useRef(null);
-  
   // Voice chat - PeerJS implementation
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
