@@ -2009,25 +2009,10 @@ export default function GamePage() {
             )}
           </div>
           
-          {/* Quick Emoji/Phrase Reactions - Show in BOTH portrait and landscape */}
-          <div className="flex flex-wrap justify-center gap-1">
-            {QUICK_EMOJIS.slice(0, 5).map(emoji => (
-              <button
-                key={emoji}
-                onClick={() => sendReaction(emoji, true)}
-                className="text-base sm:text-lg md:text-xl hover:scale-110 active:scale-95 transition-transform bg-black/40 rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center"
-              >
-                {emoji}
-              </button>
-            ))}
-            {QUICK_PHRASES.map(phrase => (
-              <button
-                key={phrase}
-                onClick={() => sendReaction(phrase, false)}
-                className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-500 rounded-full text-white"
-              >
-                {phrase}
-              </button>
+          {/* Cards - BIGGER and centered */}
+          <div 
+            className="w-full overflow-x-auto pb-safe" 
+            style={{
             ))}
           </div>
           
