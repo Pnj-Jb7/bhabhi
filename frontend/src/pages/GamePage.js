@@ -480,7 +480,9 @@ function PlayerSlot({
   position,
   isLastCardPlayed,
   isMe = false,
-  escapePosition = null
+  escapePosition = null,
+  isTochooGiver = false,
+  isToochooPicker = false
 }) {
   const isBot = player?.is_bot || player?.id?.startsWith('bot_');
   
