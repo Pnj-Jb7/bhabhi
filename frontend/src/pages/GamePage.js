@@ -1831,12 +1831,11 @@ export default function GamePage() {
                 const radius = 30;
                 const offsetX = Math.cos(angle) * radius;
                 const offsetY = Math.sin(angle) * radius;
-                const offsetY = Math.sin(angle) * radius;
                 return (
                   <motion.div
                     key={`${playerId}-${data.timestamp}`}
                     initial={{ opacity: 0, scale: 0.3, y: 100 }}
-                    animate={{ opacity: 1, scale: 1, y: 0, x: offsetX }}
+                    animate={{ opacity: 1, scale: 1, y: offsetY, x: offsetX }}
                     exit={{ opacity: 0, scale: 0.3, y: -100 }}
                     className="absolute bg-gradient-to-br from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-3xl shadow-2xl text-center border-4 border-white"
                   >
