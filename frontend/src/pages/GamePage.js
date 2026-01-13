@@ -1873,6 +1873,8 @@ export default function GamePage() {
                 position={position}
                 isLastCardPlayed={isLastCard && lastPlayedCardId === player.id}
                 escapePosition={escapePos}
+                isTochooGiver={tochooGiver === player.id}
+                isToochooPicker={tochooPicker === player.id}
               />
             );
           })}
