@@ -548,11 +548,21 @@ function PlayerSlot({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className={`
-              flex flex-col items-center p-2 rounded-xl transition-all backdrop-blur-sm
+              flex flex-col items-center p-2 rounded-xl transition-all backdrop-blur-sm relative
               ${isCurrentPlayer ? 'bg-yellow-500/40 ring-2 ring-yellow-400 shadow-lg shadow-yellow-500/30' : 'bg-black/50'}
               ${isFinished ? 'bg-emerald-900/50 ring-2 ring-emerald-500' : ''}
+              ${isToochooPicker ? 'ring-2 ring-red-500 bg-red-900/50' : ''}
+              ${isTochooGiver ? 'ring-2 ring-yellow-400 bg-yellow-900/30' : ''}
             `}
           >
+            {/* Tochoo indicator - 🚨 for picker, 🤣 for giver */}
+            {isToochooPicker && (
+              <span className="absolute -top-2 -right-2 text-2xl animate-bounce z-10">🚨</span>
+            )}
+            {isTochooGiver && (
+              <span className="absolute -top-2 -right-2 text-2xl animate-bounce z-10">🤣</span>
+            )}
+            
             <div className={`
               w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-xl font-bold border-2 relative overflow-hidden
               ${isBot ? 'bg-gradient-to-br from-amber-200 to-orange-300 border-amber-400' : 'bg-gradient-to-br from-violet-500 to-pink-500 border-white/40'}
@@ -570,8 +580,8 @@ function PlayerSlot({
               <p className={`text-xs font-bold ${isMe ? 'text-primary' : 'text-white'}`}>
                 {isMe ? 'You' : player.username?.slice(0, 6)}
               </p>
-              <p className={`text-[10px] font-medium ${isFinished ? 'text-emerald-400' : 'text-gray-300'}`}>
-                {isFinished ? `${escapePosition ? getPositionBadge(escapePosition) : '✓'}` : `${cardCount}c`}
+              <p className={`text-[10px] font-medium ${isFinished ? 'text-emerald-400' : isToochooPicker ? 'text-red-400' : 'text-gray-300'}`}>
+                {isFinished ? `${escapePosition ? getPositionBadge(escapePosition) : '✓'}` : isToochooPicker ? '⬆️ +cards' : `${cardCount}c`}
               </p>
             </div>
           </motion.div>
