@@ -725,7 +725,11 @@ export default function GamePage() {
   
   // Quick emojis and phrases for reactions
   const QUICK_EMOJIS = ['🤣', '🥳', '🤬', '👍', '😭', '❤️', '💩'];
-  const QUICK_PHRASES = ['Hahahaha', 'Aa chak fer', 'Leh swaad', 'Ku***', 'BC', 'Damn It', 'Marr ja'];
+  const QUICK_PHRASES = ['Hahahaha', 'Aa chak fer', 'Leh swaad', 'BC', 'Oh no', 'Damn It', 'Marr ja'];
+  
+  // Tochoo indicators - show on specific players
+  const [tochooGiver, setTochooGiver] = useState(null); // player who gave tochoo - show 🤣
+  const [tochooPicker, setTochooPicker] = useState(null); // player who picked up - show 🚨
 
   const fetchGameState = useCallback(async () => {
     try {
