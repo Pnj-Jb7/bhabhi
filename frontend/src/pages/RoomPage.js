@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { 
-  Swords, Copy, Check, Users, Crown, Play, LogOut, 
+  Copy, Check, Users, Crown, Play, LogOut, 
   Mic, MicOff, Volume2, VolumeX, Bot, X, Share2 
 } from 'lucide-react';
 
