@@ -1367,7 +1367,7 @@ export default function GamePage() {
       console.log('✅ Microphone access granted');
       localStreamRef.current = stream;
       
-      // Create PeerJS instance
+      // Create PeerJS instance with better config
       const myPeerId = getPeerId(user?.id);
       console.log('🔗 Creating PeerJS with ID:', myPeerId);
       
@@ -1378,8 +1378,22 @@ export default function GamePage() {
             { urls: 'stun:stun.l.google.com:19302' },
             { urls: 'stun:stun1.l.google.com:19302' },
             { urls: 'stun:stun2.l.google.com:19302' },
-            { urls: 'stun:global.stun.twilio.com:3478' }
-          ]
+            { urls: 'stun:stun3.l.google.com:19302' },
+            { urls: 'stun:stun4.l.google.com:19302' },
+            { urls: 'stun:global.stun.twilio.com:3478' },
+            // Free TURN server for better connectivity
+            {
+              urls: 'turn:openrelay.metered.ca:80',
+              username: 'openrelayproject',
+              credential: 'openrelayproject'
+            },
+            {
+              urls: 'turn:openrelay.metered.ca:443',
+              username: 'openrelayproject',
+              credential: 'openrelayproject'
+            }
+          ],
+          iceCandidatePoolSize: 10
         }
       });
       
@@ -1399,13 +1413,13 @@ export default function GamePage() {
           }));
         }
         
-        toast.success('🎤 Voice ON! Other players will hear you.');
+        toast.success('🎤 Voice ON! Tap 📞 to call others.');
         
-        // If there are already other voice users, call them
+        // If there are already other voice users, call them after a delay
         setTimeout(() => {
-          Object.entries(voicePeerIds).forEach(([userId, peerId]) => {
-            if (userId !== user?.id && peerId && !callsRef.current[peerId]) {
-              console.log('📞 Calling existing voice user:', peerId);
+          Object.entries(voicePeerIds).forEach(([usrId, peerId]) => {
+            if (usrId !== user?.id && peerId && !callsRef.current[peerId]) {
+              console.log('📞 Auto-calling existing voice user:', peerId);
               callPeer(peerId);
             }
           });
