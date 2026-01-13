@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
@@ -6,13 +6,25 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
-import { Swords, Mail, Lock } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+
+  // Load saved credentials on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('bhabhi_remembered_email');
+    const savedPassword = localStorage.getItem('bhabhi_remembered_password');
+    if (savedEmail && savedPassword) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +36,16 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(email, password);
+      
+      // Save or clear credentials based on Remember Me
+      if (rememberMe) {
+        localStorage.setItem('bhabhi_remembered_email', email);
+        localStorage.setItem('bhabhi_remembered_password', password);
+      } else {
+        localStorage.removeItem('bhabhi_remembered_email');
+        localStorage.removeItem('bhabhi_remembered_password');
+      }
+      
       toast.success('Welcome back!');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Login failed');
@@ -49,8 +71,9 @@ export default function LoginPage() {
 
       <Card className="w-full max-w-md glass border-white/10 relative z-10" data-testid="login-card">
         <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center glow-primary">
-            <Swords className="w-8 h-8 text-primary" />
+          {/* Ace of Spades Logo */}
+          <div className="mx-auto w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-xl">
+            <span className="text-5xl">♠️</span>
           </div>
           <CardTitle className="text-4xl font-display bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
             BHABHI
@@ -61,7 +84,7 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">Email</Label>
               <div className="relative">
@@ -92,6 +115,22 @@ export default function LoginPage() {
                 />
               </div>
             </div>
+            
+            {/* Remember Me Checkbox */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-zinc-600 bg-zinc-800 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
+                data-testid="remember-me-checkbox"
+              />
+              <Label htmlFor="rememberMe" className="text-sm text-muted-foreground cursor-pointer select-none">
+                Remember me
+              </Label>
+            </div>
+            
             <Button 
               type="submit" 
               className="w-full h-12 rounded-full font-bold tracking-wide glow-primary"
