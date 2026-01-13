@@ -708,6 +708,10 @@ export default function GamePage() {
   // Emoji reactions - display under player name
   const [playerReactions, setPlayerReactions] = useState({}); // {playerId: {emoji, text, timestamp}}
   
+  // Emoji/Reaction panels - tap to expand
+  const [showEmojiPanel, setShowEmojiPanel] = useState(false);
+  const [showPhrasePanel, setShowPhrasePanel] = useState(false);
+  
   // Text chat
   const [chatMessages, setChatMessages] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
