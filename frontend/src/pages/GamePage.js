@@ -1792,14 +1792,14 @@ export default function GamePage() {
       )}
 
       {/* Game Table - Made BIGGER */}
-      <div className="absolute inset-0 flex items-center justify-center p-1 md:p-2">
+      <div className="absolute inset-0 flex items-center justify-center p-1">
         <div 
-          className="relative rounded-[30px] sm:rounded-[60px] md:rounded-[100px] border-[5px] md:border-[8px] border-zinc-800 shadow-2xl overflow-hidden"
+          className="relative rounded-[25px] sm:rounded-[50px] md:rounded-[80px] border-[4px] md:border-[6px] border-zinc-800 shadow-2xl overflow-hidden"
           style={{ 
-            width: '98vw', 
-            height: '50vh', 
-            maxWidth: '1400px', 
-            maxHeight: '750px',
+            width: '99vw', 
+            height: '55vh', 
+            maxWidth: '1600px', 
+            maxHeight: '850px',
             background: 'linear-gradient(145deg, #1a5c30 0%, #2d7a47 50%, #1a5c30 100%)'
           }}
         >
@@ -1818,6 +1818,7 @@ export default function GamePage() {
                 const angle = (index * 60) * Math.PI / 180;
                 const radius = 30;
                 const offsetX = Math.cos(angle) * radius;
+                const offsetY = Math.sin(angle) * radius;
                 const offsetY = Math.sin(angle) * radius;
                 return (
                   <motion.div
