@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
-import { Swords, Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User } from 'lucide-react';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -59,8 +59,9 @@ export default function RegisterPage() {
 
       <Card className="w-full max-w-md glass border-white/10 relative z-10" data-testid="register-card">
         <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center glow-primary">
-            <Swords className="w-8 h-8 text-primary" />
+          {/* Ace of Spades Logo */}
+          <div className="mx-auto w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-xl">
+            <span className="text-5xl">♠️</span>
           </div>
           <CardTitle className="text-4xl font-display bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
             BHABHI
