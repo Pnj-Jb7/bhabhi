@@ -1791,32 +1791,10 @@ export default function GamePage() {
         </div>
       )}
 
-      {/* TOCHOO Alert */}
-      <AnimatePresence>
-        {showTochooAlert && trickResult?.type === 'pickup' && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.3 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.3 }}
-            className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
-          >
-            <div className="bg-gradient-to-br from-red-600 to-red-800 text-white px-16 py-10 rounded-3xl shadow-2xl border-4 border-red-400">
-              <div className="text-6xl font-black text-center mb-3 animate-pulse">🔥 TOCHOO! 🔥</div>
-              <div className="text-2xl text-center text-yellow-200 font-bold">
-                {(gameState.players || room.players)?.find(p => p.id === trickResult.tochoo_by)?.username} gave tochoo!
-              </div>
-              <div className="text-xl text-center mt-3 text-white/90">
-                {(gameState.players || room.players)?.find(p => p.id === trickResult.picker)?.username} picks up {trickResult.cards} cards!
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Game Table */}
-      <div className="absolute inset-0 flex items-center justify-center p-2 md:p-4">
+      {/* Game Table - Made BIGGER */}
+      <div className="absolute inset-0 flex items-center justify-center p-1 md:p-2">
         <div 
-          className="relative rounded-[40px] sm:rounded-[80px] md:rounded-[120px] border-[6px] md:border-[10px] border-zinc-800 shadow-2xl overflow-hidden"
+          className="relative rounded-[30px] sm:rounded-[60px] md:rounded-[100px] border-[5px] md:border-[8px] border-zinc-800 shadow-2xl overflow-hidden"
           style={{ 
             width: '98vw', 
             height: '50vh', 
