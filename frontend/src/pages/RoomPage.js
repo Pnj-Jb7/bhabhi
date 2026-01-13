@@ -253,8 +253,8 @@ export default function RoomPage() {
       {/* Header */}
       <header className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-            <Swords className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow">
+            <span className="text-2xl">♠️</span>
           </div>
           <div>
             <h1 className="text-xl font-display text-primary">{room.name}</h1>
