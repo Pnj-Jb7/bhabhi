@@ -1851,6 +1851,72 @@ export default function GamePage() {
             </AnimatePresence>
           </div>
 
+          {/* EMOJI BUTTON - Left side of table */}
+          <div className="absolute left-2 bottom-1/4 z-40">
+            <div className="relative">
+              <button
+                onClick={() => { setShowEmojiPanel(!showEmojiPanel); setShowPhrasePanel(false); }}
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg transition-all ${showEmojiPanel ? 'bg-yellow-500 scale-110' : 'bg-black/70 hover:bg-black/90'}`}
+              >
+                😀
+              </button>
+              {/* Emoji popup */}
+              <AnimatePresence>
+                {showEmojiPanel && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5, x: -20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, x: -20 }}
+                    className="absolute left-14 bottom-0 bg-black/90 rounded-2xl p-2 flex flex-col gap-1 shadow-xl border border-white/20"
+                  >
+                    {QUICK_EMOJIS.map(emoji => (
+                      <button
+                        key={emoji}
+                        onClick={() => { sendReaction(emoji, true); setShowEmojiPanel(false); }}
+                        className="text-2xl hover:scale-125 active:scale-95 transition-transform w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* PHRASE BUTTON - Right side of table */}
+          <div className="absolute right-2 bottom-1/4 z-40">
+            <div className="relative">
+              <button
+                onClick={() => { setShowPhrasePanel(!showPhrasePanel); setShowEmojiPanel(false); }}
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold shadow-lg transition-all ${showPhrasePanel ? 'bg-orange-500 scale-110 text-white' : 'bg-black/70 hover:bg-black/90 text-white'}`}
+              >
+                💬
+              </button>
+              {/* Phrase popup */}
+              <AnimatePresence>
+                {showPhrasePanel && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, x: 20 }}
+                    className="absolute right-14 bottom-0 bg-black/90 rounded-2xl p-2 flex flex-col gap-1 shadow-xl border border-white/20 min-w-[100px]"
+                  >
+                    {QUICK_PHRASES.map(phrase => (
+                      <button
+                        key={phrase}
+                        onClick={() => { sendReaction(phrase, false); setShowPhrasePanel(false); }}
+                        className="text-xs px-3 py-2 bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-500 rounded-lg text-white text-left whitespace-nowrap"
+                      >
+                        {phrase}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
           {/* Other Players */}
           {otherPlayers.map((player, index) => {
             const position = getPlayerPosition(index, otherPlayers.length);
@@ -1883,7 +1949,7 @@ export default function GamePage() {
           })}
 
           {/* My played card */}
-          <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-20">
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20">
             <AnimatePresence>
               {myPlayedCard && (
                 <LargeCard 
