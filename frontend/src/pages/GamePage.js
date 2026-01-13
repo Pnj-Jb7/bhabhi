@@ -862,12 +862,18 @@ export default function GamePage() {
           
           // Sounds for special events
           if (soundEnabled) {
-            // Tochoo sound and alert
+            // Tochoo sound and player indicators (no big red flash)
             if (data.last_trick_result?.type === 'pickup' && data.last_trick_result !== trickResult) {
               console.log('🔥 TOCHOO! Playing tochoo sound');
               sounds.tochoo();
-              setShowTochooAlert(true);
-              setTimeout(() => setShowTochooAlert(false), 5000);
+              // Set player-specific tochoo indicators
+              setTochooGiver(data.last_trick_result.tochoo_by); // 🤣 on giver
+              setTochooPicker(data.last_trick_result.picker); // 🚨 on picker
+              // Clear after 4 seconds
+              setTimeout(() => {
+                setTochooGiver(null);
+                setTochooPicker(null);
+              }, 4000);
             }
             
             // Your turn notification sound
