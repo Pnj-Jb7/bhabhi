@@ -2105,14 +2105,14 @@ export default function GamePage() {
       )}
 
       {/* Controls - top right */}
-      <div className="absolute top-4 right-4 flex items-center gap-2 z-40">
+      <div className="absolute top-4 right-4 flex items-center gap-1 sm:gap-2 z-40 flex-wrap justify-end max-w-[200px] sm:max-w-none">
         {/* Voice Chat Controls - PeerJS */}
         {!voiceEnabled ? (
           <Button
             variant="ghost"
             size="icon"
             onClick={startVoiceChat}
-            className="rounded-full text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 border border-gray-600"
+            className="rounded-full text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 border border-gray-600 w-10 h-10"
             title="Start Voice Chat"
             data-testid="voice-start-btn"
           >
@@ -2120,12 +2120,17 @@ export default function GamePage() {
           </Button>
         ) : (
           <>
-            {/* Live indicator */}
-            <div className="flex items-center gap-1 bg-emerald-600/30 rounded-full px-2 py-1 border border-emerald-500">
-              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-              <span className="text-xs text-emerald-400">
-                {isMuted ? '🔇 MUTED' : '🔊 LIVE'}
+            {/* Status indicator */}
+            <div className={`flex items-center gap-1 rounded-full px-2 py-1 border ${isMuted ? 'bg-red-600/30 border-red-500' : 'bg-emerald-600/30 border-emerald-500'}`}>
+              <span className={`w-2 h-2 rounded-full animate-pulse ${isMuted ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
+              <span className={`text-xs ${isMuted ? 'text-red-400' : 'text-emerald-400'}`}>
+                {isMuted ? 'MUTED' : 'LIVE'}
               </span>
+              {Object.keys(connectedPeers).length > 0 && (
+                <span className="text-xs text-blue-400 ml-1">
+                  ({Object.keys(connectedPeers).length} 🔗)
+                </span>
+              )}
             </div>
             
             {/* Mute/Unmute button */}
@@ -2133,24 +2138,24 @@ export default function GamePage() {
               variant="ghost"
               size="icon"
               onClick={toggleMute}
-              className={`rounded-full ${isMuted ? 'text-red-400 bg-red-500/30 border border-red-500' : 'text-emerald-400 bg-emerald-500/30 border border-emerald-500'}`}
+              className={`rounded-full w-10 h-10 ${isMuted ? 'text-red-400 bg-red-500/30 border border-red-500' : 'text-emerald-400 bg-emerald-500/30 border border-emerald-500'}`}
               title={isMuted ? 'Unmute' : 'Mute'}
               data-testid="voice-mute-btn"
             >
               {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </Button>
             
-            {/* Call All button - connect to other voice users */}
-            {voiceUsers.length > 1 && Object.keys(connectedPeers).length < voiceUsers.length - 1 && (
+            {/* Call All button - ALWAYS show when voice enabled and others in voice */}
+            {Object.keys(voicePeerIds).length > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={callAllVoiceUsers}
-                className="rounded-full text-xs bg-blue-500/30 text-blue-300 border border-blue-500 hover:bg-blue-500/40"
-                title="Connect to all voice users"
+                className="rounded-full text-xs bg-blue-600 text-white border border-blue-400 hover:bg-blue-500 px-3 py-1 h-8"
+                title="Call all voice users"
                 data-testid="voice-call-all-btn"
               >
-                📞 Call All ({voiceUsers.length - 1})
+                📞 Call ({Object.keys(voicePeerIds).length})
               </Button>
             )}
             
