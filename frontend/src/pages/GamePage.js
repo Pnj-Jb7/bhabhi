@@ -1865,23 +1865,23 @@ export default function GamePage() {
             </AnimatePresence>
           </div>
 
-          {/* EMOJI BUTTON - Left side of table */}
-          <div className="absolute left-2 bottom-1/4 z-40">
+          {/* EMOJI BUTTON - Bottom LEFT corner of table */}
+          <div className="absolute left-3 bottom-3 z-40">
             <div className="relative">
               <button
                 onClick={() => { setShowEmojiPanel(!showEmojiPanel); setShowPhrasePanel(false); }}
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg transition-all ${showEmojiPanel ? 'bg-yellow-500 scale-110' : 'bg-black/70 hover:bg-black/90'}`}
+                className={`w-11 h-11 rounded-full flex items-center justify-center text-xl shadow-lg transition-all ${showEmojiPanel ? 'bg-yellow-500 scale-110' : 'bg-black/80 hover:bg-black/90 border border-white/20'}`}
               >
                 😀
               </button>
-              {/* Emoji popup */}
+              {/* Emoji popup - opens upward */}
               <AnimatePresence>
                 {showEmojiPanel && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.5, x: -20 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.5, x: -20 }}
-                    className="absolute left-14 bottom-0 bg-black/90 rounded-2xl p-2 flex flex-col gap-1 shadow-xl border border-white/20"
+                    initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, y: 20 }}
+                    className="absolute left-0 bottom-14 bg-black/90 rounded-2xl p-2 flex flex-row gap-1 shadow-xl border border-white/20"
                   >
                     {QUICK_EMOJIS.map(emoji => (
                       <button
@@ -1898,23 +1898,23 @@ export default function GamePage() {
             </div>
           </div>
 
-          {/* PHRASE BUTTON - Right side of table */}
-          <div className="absolute right-2 bottom-1/4 z-40">
+          {/* PHRASE BUTTON - Bottom RIGHT corner of table */}
+          <div className="absolute right-3 bottom-3 z-40">
             <div className="relative">
               <button
                 onClick={() => { setShowPhrasePanel(!showPhrasePanel); setShowEmojiPanel(false); }}
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold shadow-lg transition-all ${showPhrasePanel ? 'bg-orange-500 scale-110 text-white' : 'bg-black/70 hover:bg-black/90 text-white'}`}
+                className={`w-11 h-11 rounded-full flex items-center justify-center text-xl shadow-lg transition-all ${showPhrasePanel ? 'bg-orange-500 scale-110' : 'bg-black/80 hover:bg-black/90 border border-white/20'}`}
               >
                 💬
               </button>
-              {/* Phrase popup */}
+              {/* Phrase popup - opens upward */}
               <AnimatePresence>
                 {showPhrasePanel && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.5, x: 20 }}
-                    className="absolute right-14 bottom-0 bg-black/90 rounded-2xl p-2 flex flex-col gap-1 shadow-xl border border-white/20 min-w-[100px]"
+                    initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, y: 20 }}
+                    className="absolute right-0 bottom-14 bg-black/90 rounded-2xl p-2 flex flex-row flex-wrap gap-1 shadow-xl border border-white/20 max-w-[200px]"
                   >
                     {QUICK_PHRASES.map(phrase => (
                       <button
