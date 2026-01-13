@@ -2026,13 +2026,6 @@ export default function GamePage() {
           {/* Cards - BIGGER and centered */}
           <div 
             className="w-full overflow-x-auto pb-safe" 
-            style={{
-            ))}
-          </div>
-          
-          {/* Cards - Centered, tight overlap like reference */}
-          <div 
-            className="w-full overflow-x-auto pb-safe" 
             style={{ 
               WebkitOverflowScrolling: 'touch',
               paddingBottom: 'env(safe-area-inset-bottom, 8px)'
